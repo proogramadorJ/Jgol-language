@@ -24,6 +24,10 @@ kotlin {
             implementation(compose.components.resources)
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
             implementation("org.jetbrains.kotlin:kotlin-scripting-jvm")
+            implementation("io.github.vinceglb:filekit-core:0.8.2")
+
+            // Enables FileKit with Composable utilities
+            implementation("io.github.vinceglb:filekit-compose:0.8.2")
             //implementation(libs.navigation.compose)
         }
         desktopMain.dependencies {

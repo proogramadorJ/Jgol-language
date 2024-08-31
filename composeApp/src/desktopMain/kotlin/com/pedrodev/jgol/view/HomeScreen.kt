@@ -21,9 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.pickFile
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.folder
 import jgol.composeapp.generated.resources.new_document
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -117,6 +120,16 @@ fun createNewFile(navController: NavController) {
     navController.navigate("EditorScreen")
 }
 
-fun openFile() {
+fun openFile() = runBlocking {
     println("Open File")
+
+    val file = FileKit.pickFile()
+    val filePath = file?.path
+
+    if(!filePath.isNullOrEmpty()){
+        println("Selected file path is: $filePath")
+    }else{
+        println("No file selected")
+    }
+
 }
