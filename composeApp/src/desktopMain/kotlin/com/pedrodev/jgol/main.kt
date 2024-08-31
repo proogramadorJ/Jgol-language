@@ -2,6 +2,7 @@ package com.pedrodev.jgol
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.pedrodev.jgol.navigation.SetupNavigation
 
 fun main() = application {
     Window(
@@ -9,6 +10,7 @@ fun main() = application {
         title = "Jgol IDE",
 
     ) {
-        App()
+        //App()
+        SetupNavigation()
     }
 }

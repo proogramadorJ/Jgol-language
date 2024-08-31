@@ -1,4 +1,4 @@
-package com.pedrodev.jgol
+package com.pedrodev.jgol.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,41 +10,41 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Colors
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.folder
 import jgol.composeapp.generated.resources.new_document
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+
 @Composable
 @Preview
-fun App() {
+fun Home(navController: NavController) {
     MaterialTheme {
-        MainContent()
+        MainContent(navController)
 
     }
 }
 
 @Preview
 @Composable
-fun MainContent() {
+fun MainContent(navController: NavController) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.DarkGray
     ) {
-        CardsRow()
+        CardsRow(navController)
     }
 }
 
@@ -52,7 +52,7 @@ fun MainContent() {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-fun CardsRow() {
+fun CardsRow(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -87,7 +87,7 @@ fun CardsRow() {
         }
 
         Card(
-            onClick = { createNewFile() },
+            onClick = { createNewFile(navController) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .padding(8.dp)
@@ -113,8 +113,9 @@ fun CardsRow() {
     }
 }
 
-fun createNewFile() {
+fun createNewFile(navController: NavController) {
     println("New File")
+    navController.navigate("Editor")
 }
 
 fun openFile() {
