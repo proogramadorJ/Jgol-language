@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pedrodev.jgol.view.Home
-import com.pedrodev.jgol.view.MainEditorScreen
+import com.pedrodev.jgol.view.HomeScreen
+import com.pedrodev.jgol.view.EditorScreen
 
 @Composable
 fun SetupNavigation() {
@@ -13,17 +13,17 @@ fun SetupNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "Home",
+        startDestination = "HomeScreen",
     ) {
         composable(
-            route = "Home"
+            route = "HomeScreen"
         ) {
-            Home(navController = navController)
+            HomeScreen(navController = navController)
         }
         composable(
-            route = "Editor"
+            route = "EditorScreen"
         ) {
-            MainEditorScreen(navController = navController)
+            EditorScreen(navController = navController)
         }
     }
 

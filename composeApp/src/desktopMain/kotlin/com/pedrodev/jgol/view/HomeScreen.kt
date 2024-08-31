@@ -30,10 +30,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun Home(navController: NavController) {
+fun HomeScreen(navController: NavController) {
     MaterialTheme {
         MainContent(navController)
-
     }
 }
 
@@ -115,7 +114,7 @@ fun CardsRow(navController: NavController) {
 
 fun createNewFile(navController: NavController) {
     println("New File")
-    navController.navigate("Editor")
+    navController.navigate("EditorScreen")
 }
 
 fun openFile() {
