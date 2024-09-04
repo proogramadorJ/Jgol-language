@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.pickFile
 import jgol.composeapp.generated.resources.Res
@@ -63,7 +64,7 @@ fun CardsRow(navController: NavController) {
     ) {
 
         Card(
-            onClick = { openFile() },
+            onClick = { openFile(navController) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .padding(8.dp)
@@ -111,7 +112,6 @@ fun CardsRow(navController: NavController) {
                 Text(modifier = Modifier.padding(top = 10.dp), text = "Novo Arquivo")
             }
         }
-
     }
 }
 
@@ -120,15 +120,17 @@ fun createNewFile(navController: NavController) {
     navController.navigate("EditorScreen")
 }
 
-fun openFile() = runBlocking {
+fun openFile(navController : NavController) = runBlocking {
     println("Open File")
-
     val file = FileKit.pickFile()
     val filePath = file?.path
 
-    if(!filePath.isNullOrEmpty()){
+    if (!filePath.isNullOrEmpty()) {
         println("Selected file path is: $filePath")
-    }else{
+        HomeScreenEditScreenSharedData.isFileSelected = true
+        HomeScreenEditScreenSharedData.filePath = filePath
+        navController.navigate("EditorScreen")
+    } else {
         println("No file selected")
     }
 

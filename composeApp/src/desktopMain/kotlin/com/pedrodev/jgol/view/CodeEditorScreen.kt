@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -27,4 +28,6 @@ fun MainContentEditorScreen() {
     ) {
         Text(text = "Hello i am second screen")
     }
+    println(HomeScreenEditScreenSharedData.isFileSelected)
+    println(HomeScreenEditScreenSharedData.filePath?:"")
 }
