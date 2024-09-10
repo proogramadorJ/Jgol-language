@@ -12,13 +12,21 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
+import com.pedrodev.jgol.terminal.Terminal
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.run_code
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -28,7 +36,6 @@ fun EditorScreen(navController: NavController) {
     MaterialTheme {
         MainContentEditorScreen()
     }
-
 }
 
 @Preview
@@ -38,14 +45,37 @@ fun MainContentEditorScreen() {
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
     ) {
-        MenuBarCompose()
-
-
+        Box(
+        ) {
+            Column {
+                MenuBarCompose()
+                CodeInputEditor()
+            }
+        }
     }
 
 
     println("was file selected: ${HomeScreenEditScreenSharedData.isFileSelected}")
     println("file path: ${HomeScreenEditScreenSharedData.filePath}" ?: "")
+}
+
+@Composable
+fun CodeInputEditor() {
+
+    // TODO Se recebeu um arquivo preencher aqui
+
+    var inMemoryCode by remember { mutableStateOf("") }
+
+    TextField(
+        textStyle = TextStyle(color = Color.White),
+        value = inMemoryCode,
+        onValueChange = {
+            inMemoryCode = it
+        },
+        modifier = Modifier.fillMaxSize()
+    )
+
+
 }
 
 @Composable
@@ -78,5 +108,6 @@ fun MenuBarCompose() {
 }
 
 fun runCode() {
-    println("Run code")
+    val terminal = Terminal()
+    terminal.init()
 }
