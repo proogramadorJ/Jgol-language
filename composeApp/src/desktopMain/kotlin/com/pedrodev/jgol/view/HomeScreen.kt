@@ -55,8 +55,7 @@ fun MainContent(navController: NavController) {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-fun CardsRow(navController: NavController) {
-    Row(
+fun CardsRow(navController: NavController) { Row(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,

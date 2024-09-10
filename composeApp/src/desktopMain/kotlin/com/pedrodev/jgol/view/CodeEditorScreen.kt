@@ -108,6 +108,5 @@ fun MenuBarCompose() {
 }
 
 fun runCode() {
-    val terminal = Terminal()
-    terminal.init()
+
 }
