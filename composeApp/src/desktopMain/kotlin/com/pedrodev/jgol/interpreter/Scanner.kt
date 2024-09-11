@@ -19,6 +19,7 @@ class Scanner(var source: String) {
         return tokens
     }
 
+    // TODO adicionar suporte a comentario de multiplas linhas /* ... */
     private fun scanToken() {
         var c: Char = advance()
 
@@ -54,11 +55,32 @@ class Scanner(var source: String) {
             else -> {
                 if (isDigit(c)) {
                     number()
+                } else if (isAlpha(c)) {
+                    identifier()
                 } else {
                     ErrorHandler.error(line, "Caractere inesperado.")
                 }
             }
         }
+    }
+
+    private fun identifier() {
+        while (isAlphaNumeric(peek())) advance()
+        val text: String = source.substring(start, current)
+        var type: TokenType = TokenType.IDENTIFIER
+
+        if (Keywords.jgolKeywords.containsKey(text)) {
+            type = Keywords.jgolKeywords[text]!!
+        }
+        addToken(type)
+    }
+
+    private fun isAlphaNumeric(c: Char): Boolean {
+        return isAlpha(c) || isDigit(c)
+    }
+
+    private fun isAlpha(c: Char): Boolean {
+        return c in 'a'..'z' || c in 'A'..'Z' || c == '_'
     }
 
     private fun isDigit(c: Char): Boolean {
@@ -90,7 +112,6 @@ class Scanner(var source: String) {
             return
         }
         advance()
-
         val value: String = source.substring(start + 1, current - 1)
         addToken(TokenType.STRING, value)
     }
