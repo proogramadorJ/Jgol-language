@@ -1,5 +1,5 @@
 package com.pedrodev.jgol.shared
 
-object  DevDebug {
+object DevDebug {
 
 }
