@@ -97,7 +97,7 @@ class Scanner(var source: String) {
     }
 
     private fun peekNext(): Char {
-        if (current + 1 >= source.length) return '\0' // TODO replace this character
+        if (current + 1 >= source.length) return '\b' // TODO replace this character
         return source[current + 1]
     }
 
@@ -118,7 +118,7 @@ class Scanner(var source: String) {
 
     private fun peek(): Char {
         if (isAtEnd()) {
-            return '\0' // TODO replace this character
+            return '\b' // TODO replace this character
         }
         return source[current]
     }
