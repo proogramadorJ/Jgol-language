@@ -13,6 +13,7 @@ class Jgol {
 
         private fun report(line: Int, where: String, message: String) {
             System.err.println("[Linha $line ] Erro $where: $message")
+            hadError = true
         }
 
         fun error(token: Token, message: String) {
@@ -44,8 +45,6 @@ class Jgol {
 
         interpreter.interpret(statements)
 
-
     }
-
 
 }

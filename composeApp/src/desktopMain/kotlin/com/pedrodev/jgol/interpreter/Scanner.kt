@@ -29,7 +29,7 @@ class Scanner(var source: String) {
             ',' -> addToken(TokenType.COMMA)
             '.' -> addToken(TokenType.DOT)
             '-' -> addToken(TokenType.MINUS)
-            '+' -> addToken(TokenType.PLUSH)
+            '+' -> addToken(TokenType.PLUS)
             ';' -> addToken(TokenType.SEMICOLON)
             '*' -> addToken(TokenType.STAR)
             '!' -> addToken(if (match('=')) TokenType.BANG_EQUAL else TokenType.BANG)
@@ -56,7 +56,7 @@ class Scanner(var source: String) {
                 } else if (isAlpha(c)) {
                     identifier()
                 } else {
-                    ErrorHandler.error(line, "Caractere inesperado.")
+                   Jgol.error(line, "Caractere inesperado.")
                 }
             }
         }
@@ -106,7 +106,7 @@ class Scanner(var source: String) {
         }
 
         if (isAtEnd()) {
-            ErrorHandler.error(line, "String não terminada")
+            Jgol.error(line, "String não terminada")
             return
         }
         advance()

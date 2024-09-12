@@ -48,7 +48,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                     left is String && right is String -> left + right
                     left is String && right is Double -> left + stringify(right)
                     left is Double && right is String -> stringify(left) + right
-                    else -> throw RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
+                    else -> throw RuntimeError(expr.operator, "Os operandos devem ser dois números ou duas strings.")
                 }
             }
             TokenType.SLASH -> {
@@ -71,11 +71,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         val arguments = expr.arguments.map { evaluate(it) }
 
         if (callee !is LoxCallable) {
-            throw RuntimeError(expr.paren, "Can only call functions and classes.")
+            throw RuntimeError(expr.paren, "Só pode chamar funções e classes.")
         }
 
         if (arguments.size != callee.arity()) {
-            throw RuntimeError(expr.paren, "Expected ${callee.arity()} arguments but got ${arguments.size}.")
+            throw RuntimeError(expr.paren, "Esperado ${callee.arity()} argumentos mas recebeu ${arguments.size}.")
         }
 
         return callee.call(this, arguments)
@@ -83,7 +83,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     private fun checkNumberOperands(operator: Token, left: Any?, right: Any?) {
         if (left is Double && right is Double) return
-        throw RuntimeError(operator, "Operands must be numbers.")
+        throw RuntimeError(operator, "Operandos devem ser números.")
     }
 
     private fun isEqual(left: Any?, right: Any?): Boolean {
@@ -140,7 +140,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     private fun checkNumberOperand(operator: Token, operand: Any?) {
         if (operand is Double) return
-        throw RuntimeError(operator, "Operand must be a number.")
+        throw RuntimeError(operator, "O operando deve ser um número.")
     }
 
     private fun isTruthy(obj: Any?): Boolean {
@@ -170,7 +170,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
     }
 
     private fun stringify(obj: Any?): String {
-        if (obj == null) return "nil"
+        if (obj == null) return "nulo"
         if (obj is Double) {
             var text = obj.toString()
             if (text.endsWith(".0")) {
