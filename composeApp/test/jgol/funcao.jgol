@@ -1,0 +1,11 @@
+funcao main(str, bt){
+    escreva "Hello " + str + "!";
+}
+
+main("world","br");
+
+funcao test(){
+ escreva "I am a function without parameters";
+}
+
+test();

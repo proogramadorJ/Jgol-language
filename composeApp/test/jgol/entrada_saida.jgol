@@ -1,0 +1,6 @@
+escreva "Informe um número";
+
+variavel in = leia();
+
+escreva "O número digitado foi  "+in;
+escreva "O número digitado + 10 é igual a : "+(in+10);

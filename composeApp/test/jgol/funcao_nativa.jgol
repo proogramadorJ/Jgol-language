@@ -1,0 +1,2 @@
+variavel a =  clock();
+escreva "valor de a "+a;

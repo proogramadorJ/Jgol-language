@@ -10,10 +10,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.pedrodev.jgol.interpreter.AstPrinter
+import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.run_code
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+
+
+var code : String = ""
 
 @Composable
 fun EditorScreen(navController: NavController) {
@@ -46,15 +53,20 @@ fun MainContentEditorScreen() {
 @Composable
 fun CodeInputEditor() {
 
-    // TODO Se recebeu um arquivo preencher aqui
-
     var inMemoryCode by remember { mutableStateOf("") }
+
+    if (HomeScreenEditScreenSharedData.isFileSelected) {
+        inMemoryCode = Files.readString(HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) })
+    }
+
+    // TODO código duplicado na memoria? Otimizar
 
     TextField(
         textStyle = TextStyle(color = Color.White),
         value = inMemoryCode,
         onValueChange = {
             inMemoryCode = it
+            code = it
         },
         modifier = Modifier.fillMaxSize()
     )
@@ -92,6 +104,8 @@ fun MenuBarCompose() {
 }
 
 fun runCode() {
-    println("Running code")
-    AstPrinter.test()
+    println("Running code...")
+    val jgolInterpreter = Jgol()
+    // TODO o código que vai ser executado deve ser o inMemory(Pode ainda não ter sido salvo) ou do arquivo?
+    jgolInterpreter.run(code)
 }

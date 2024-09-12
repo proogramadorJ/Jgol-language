@@ -1,0 +1,19 @@
+variavel a = "global a";
+variavel b = "global b";
+variavel c = "global c";
+{
+  variavel a = "outer a";
+  variavel b = "outer b";
+  {
+    variavel a = "inner a";
+    escreva a;
+    escreva b;
+    escreva c;
+  }
+  escreva a;
+  escreva b;
+  escreva c;
+}
+escreva a;
+escreva b;
+escreva c;

@@ -2,7 +2,7 @@ package com.pedrodev.jgol.interpreter
 
 enum class TokenType {
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-    COMMA, DOT, MINUS, PLUSH, SEMICOLON, SLASH, STAR,
+    COMMA, DOT, MINUS,PLUS, PLUSH, SEMICOLON, SLASH, STAR,
 
     BANG, BANG_EQUAL,
     EQUAL, EQUAL_EQUAL,

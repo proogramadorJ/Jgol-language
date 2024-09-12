@@ -1,7 +1,5 @@
 package com.pedrodev.jgol.interpreter
 
-import com.pedrodev.jgol.interpreter.error.ErrorHandler
-
 class Scanner(var source: String) {
 
     var tokens: MutableList<Token> = mutableListOf()

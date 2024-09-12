@@ -1,4 +1,4 @@
-package com.pedrodev.jgol.interpreter.error;
+package com.pedrodev.jgol.interpreter;
 
 class ErrorHandler {
 

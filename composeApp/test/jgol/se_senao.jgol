@@ -1,0 +1,24 @@
+variavel a = 1;
+variavel b = 5;
+variavel c = 5;
+
+se(a > 4){
+ escreva a+" é maior que  5";
+}senao{
+ escreva a+" não é maior que 5";
+}
+
+se(b == c){
+ escreva "b é igual a c";
+}
+
+se(a != b){
+ escreva "a não é igual b";
+}
+
+se(verdadeiro){
+  se(falso){
+  }senao{
+    escreva "hello";
+  }
+}

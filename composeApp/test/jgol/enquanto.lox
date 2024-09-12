@@ -1,0 +1,6 @@
+variavel a = 0;
+
+enquanto(a < 100){
+    escreva a;
+    a = a + 1;
+}

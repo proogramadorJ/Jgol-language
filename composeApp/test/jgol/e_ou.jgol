@@ -1,0 +1,16 @@
+variavel a = verdadeiro;
+variavel b = falso;
+
+se(a ou b){
+    escreva "a ou b é verdadeiro";
+}
+
+se(a e b){
+ escreva "a e b são verdadeiros";
+}senao{
+ escreva "os dois não são verdadeiros";
+}
+
+se(verdadeiro e verdadeiro){
+ escreva "verdadeiro and verdadeiro  = verdadeiro";
+}

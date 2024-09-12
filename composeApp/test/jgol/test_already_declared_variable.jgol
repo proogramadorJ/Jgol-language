@@ -1,0 +1,6 @@
+variavel a = "hello world";
+
+escreva a;
+
+variavel a = "hey there";
+escreva a;

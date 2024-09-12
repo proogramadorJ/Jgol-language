@@ -1,0 +1,6 @@
+funcao fib(n){
+    se(n <= 1) retorne n;
+    retorne fib(n - 2) + fib(n-1);
+}
+
+escreva("fib of 20 = " +fib(20));
