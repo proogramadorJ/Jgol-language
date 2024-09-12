@@ -1,5 +1,7 @@
 package com.pedrodev.jgol.interpreter
 
+import kotlin.math.exp
+
 // TODO testar/forçar todos os possiveis erros gerados durante o parsing
 
 class Parser(private val tokens: List<Token>) {
@@ -13,7 +15,7 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun assignment(): Expr {
-        var expr = or()
+        val expr = or()
 
         if (match(TokenType.EQUAL)) {
             val equals = previous()
@@ -22,6 +24,9 @@ class Parser(private val tokens: List<Token>) {
             if (expr is Expr.Variable) {
                 val name = expr.name
                 return Expr.Assign(name, value)
+            } else if (expr is Expr.Get) {
+                val get: Expr.Get = expr
+                return Expr.Set(get.obj, get.name, value)
             }
             error(equals, "Destino de atribuição inválido.")
         }
@@ -135,8 +140,11 @@ class Parser(private val tokens: List<Token>) {
         var expr = primary()
 
         while (true) {
-            expr = if (match(TokenType.LEFT_PAREN)) {
-                finishCall(expr)
+            if (match(TokenType.LEFT_PAREN)) {
+                expr = finishCall(expr)
+            } else if (match(TokenType.DOT)) {
+                val name = consume(TokenType.IDENTIFIER, "Esperado nome da propriedade após '.'.")
+                expr = Expr.Get(expr, name)
             } else {
                 break
             }
@@ -223,6 +231,7 @@ class Parser(private val tokens: List<Token>) {
     private fun declaration(): Stmt? {
         return try {
             when {
+                match(TokenType.CLASS) -> classDeclaration()
                 match(TokenType.FUN) -> function("function")
                 match(TokenType.VAR) -> varDeclaration()
                 else -> statement()
@@ -232,6 +241,21 @@ class Parser(private val tokens: List<Token>) {
             null
         }
     }
+
+    private fun classDeclaration(): Stmt {
+        val name = consume(TokenType.IDENTIFIER, "Esperado nome da classe.")
+        consume(TokenType.LEFT_BRACE, "Esperado '{' antes do corpo da classe.")
+
+        val methods: MutableList<Stmt.Function> = mutableListOf()
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"))
+        }
+
+        consume(TokenType.RIGHT_BRACE, "Esperado '}' depois do corpo da classe.")
+
+        return Stmt.Class(name, methods)
+    }
+
 
     private fun function(kind: String): Stmt.Function {
         val name = consume(TokenType.IDENTIFIER, "Esperado $kind nome.")

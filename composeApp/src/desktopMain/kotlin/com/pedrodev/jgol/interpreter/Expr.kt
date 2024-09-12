@@ -11,6 +11,8 @@ abstract class Expr {
         fun visitLogicalExpr(expr: Logical): R
         fun visitUnaryExpr(expr: Unary): R
         fun visitVariableExpr(expr: Variable): R
+        fun visitGetExpr(expr: Get): R
+        fun visitSetExpr(expr: Set): R
     }
 
     class Assign(val name: Token, val value: Expr) : Expr() {
@@ -59,6 +61,20 @@ abstract class Expr {
         override fun <R> accept(visitor: Visitor<R>): R {
             return visitor.visitVariableExpr(this)
         }
+    }
+
+    class Get(val obj: Expr, val name: Token) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitGetExpr(this)
+        }
+
+    }
+
+    class Set(val obj: Expr, val name: Token, val value: Expr) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitSetExpr(this)
+        }
+
     }
 
     abstract fun <R> accept(visitor: Visitor<R>): R

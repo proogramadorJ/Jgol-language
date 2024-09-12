@@ -1,9 +1,9 @@
 package com.pedrodev.jgol.interpreter
 
-class LoxFunction(
+class JgolFunction(
     private val declaration: Stmt.Function,
     private val closure: Environment
-) : LoxCallable {
+) : JgolCallable {
 
     override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
         val environment = Environment(closure)

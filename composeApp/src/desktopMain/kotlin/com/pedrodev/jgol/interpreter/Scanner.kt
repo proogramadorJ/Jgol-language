@@ -19,7 +19,7 @@ class Scanner(var source: String) {
 
     // TODO adicionar suporte a comentario de multiplas linhas /* ... */
     private fun scanToken() {
-        var c: Char = advance()
+        val c: Char = advance()
 
         when (c) {
             '(' -> addToken(TokenType.LEFT_PAREN)

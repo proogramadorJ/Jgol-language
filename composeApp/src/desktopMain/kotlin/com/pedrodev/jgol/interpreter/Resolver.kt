@@ -53,6 +53,17 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         return null
     }
 
+    override fun visitGetExpr(expr: Expr.Get): Void? {
+        resolve(expr.obj)
+        return null
+    }
+
+    override fun visitSetExpr(expr: Expr.Set): Void? {
+        resolve(expr.value)
+        resolve(expr.obj)
+        return null
+    }
+
     private fun resolveLocal(expr: Expr, name: Token) {
         for (i in scopes.size - 1 downTo 0) {
             if (scopes[i].containsKey(name.lexeme)) {
@@ -94,10 +105,10 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         return null
     }
 
-    override fun visitFunctionStmt(function: Stmt.Function): Void? {
-        declare(function.name)
-        define(function.name)
-        resolveFunction(function, FunctionType.FUNCTION)
+    override fun visitFunctionStmt(stmt: Stmt.Function): Void? {
+        declare(stmt.name)
+        define(stmt.name)
+        resolveFunction(stmt, FunctionType.FUNCTION)
         return null
     }
 
@@ -145,6 +156,17 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         declare(stmt.name)
         stmt.initializer?.let { resolve(it) }
         define(stmt.name)
+        return null
+    }
+
+    override fun visitClassStmt(stmt: Stmt.Class): Void? {
+        declare(stmt.name)
+        define(stmt.name)
+
+        stmt.methods.forEach { method ->
+            val declaration = FunctionType.METHOD
+            resolveFunction(method, declaration)
+        }
         return null
     }
 

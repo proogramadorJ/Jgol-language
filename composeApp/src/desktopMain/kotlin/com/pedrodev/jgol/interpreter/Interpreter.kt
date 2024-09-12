@@ -26,18 +26,22 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) > (right as Double)
             }
+
             TokenType.GREATER_EQUAL -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) >= (right as Double)
             }
+
             TokenType.LESS -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) < (right as Double)
             }
+
             TokenType.LESS_EQUAL -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) <= (right as Double)
             }
+
             TokenType.MINUS -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) - (right as Double)
@@ -52,14 +56,17 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                     else -> throw RuntimeError(expr.operator, "Os operandos devem ser dois números ou duas strings.")
                 }
             }
+
             TokenType.SLASH -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) / (right as Double)
             }
+
             TokenType.STAR -> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) * (right as Double)
             }
+
             TokenType.BANG_EQUAL -> !isEqual(left, right)
             TokenType.EQUAL_EQUAL -> isEqual(left, right)
             else -> null
@@ -71,7 +78,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
         val arguments = expr.arguments.map { evaluate(it) }
 
-        if (callee !is LoxCallable) {
+        if (callee !is JgolCallable) {
             throw RuntimeError(expr.paren, "Só pode chamar funções e classes.")
         }
 
@@ -122,12 +129,33 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                 checkNumberOperand(expr.operator, right)
                 -(right as Double)
             }
+
             else -> null
         }
     }
 
     override fun visitVariableExpr(expr: Expr.Variable): Any? {
         return lookUpVariable(expr.name, expr)
+    }
+
+    override fun visitGetExpr(expr: Expr.Get): Any? {
+        val obj = evaluate(expr.obj)
+        if (obj is JgolInstance) {
+            return obj.get(expr.name)
+        }
+        throw RuntimeError(expr.name, "Apenas instancias possuem atributos.")
+    }
+
+    override fun visitSetExpr(expr: Expr.Set): Any? {
+        val obj = evaluate(expr.obj)
+
+        if (obj !is JgolInstance) {
+            throw RuntimeError(expr.name, "Apenas instancias possuem atributos.")
+        }
+
+        val value = evaluate(expr.value)
+        obj.set(expr.name, value)
+        return value
     }
 
     private fun lookUpVariable(name: Token, expr: Expr.Variable): Any? {
@@ -203,7 +231,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
     }
 
     override fun visitFunctionStmt(stmt: Stmt.Function): Void? {
-        val function = LoxFunction(stmt, environment)
+        val function = JgolFunction(stmt, environment)
         environment.define(stmt.name.lexeme, function)
         return null
     }
@@ -241,8 +269,22 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         return null
     }
 
-    val clockFunctionDefiniton = object : LoxCallable{
-        override fun call(interpreter: Interpreter, arguments: List<Any?>) : Any {
+    override fun visitClassStmt(stmt: Stmt.Class): Void? {
+        environment.define(stmt.name.lexeme, null)
+
+        val methods = mutableMapOf<String, JgolFunction>()
+        stmt.methods.forEach { method ->
+            val function = JgolFunction(method, environment)
+            methods[method.name.lexeme] = function
+        }
+
+        val kclass = JgolClass(stmt.name.lexeme, methods)
+        environment.assign(stmt.name, kclass)
+        return null
+    }
+
+    val clockFunctionDefiniton = object : JgolCallable {
+        override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
             return System.currentTimeMillis().toDouble() / 1000.0 // TODO tá certo isso?
         }
 

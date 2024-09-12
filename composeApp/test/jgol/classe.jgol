@@ -1,0 +1,10 @@
+classe PrimeiraClasse {
+    teste(){
+        escreva("Ola a partir de PrimeiraClasse.teste()");
+    }
+}
+
+escreva PrimeiraClasse;
+
+variavel obj = PrimeiraClasse();
+obj.teste();
