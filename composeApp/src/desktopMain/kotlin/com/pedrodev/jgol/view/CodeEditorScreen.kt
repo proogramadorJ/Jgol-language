@@ -8,30 +8,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.pedrodev.jgol.interpreter.AstPrinter
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.run_code
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
 
-var code : String = ""
+object EditorViewModel : ViewModel() {
+    var inMemoryCode by mutableStateOf(if (HomeScreenEditScreenSharedData.isFileSelected) getCodeFromFile() else "")
+}
+
+fun getCodeFromFile(): String {
+    return Files.readString(HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) })
+}
 
 @Composable
 fun EditorScreen(navController: NavController) {
     MaterialTheme {
-        MainContentEditorScreen()
+        MainContentEditorScreen(EditorViewModel)
     }
 }
 
-@Preview
+
 @Composable
-fun MainContentEditorScreen() {
+fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
@@ -40,33 +45,23 @@ fun MainContentEditorScreen() {
         ) {
             Column {
                 MenuBarCompose()
-                CodeInputEditor()
+                CodeInputEditor(editorViewModel)
             }
         }
     }
-
-
-    println("was file selected: ${HomeScreenEditScreenSharedData.isFileSelected}")
-    println("file path: ${HomeScreenEditScreenSharedData.filePath}" ?: "")
 }
 
 @Composable
-fun CodeInputEditor() {
+fun CodeInputEditor(editorViewModel: EditorViewModel) {
 
-    var inMemoryCode by remember { mutableStateOf("") }
-
-    if (HomeScreenEditScreenSharedData.isFileSelected) {
-        inMemoryCode = Files.readString(HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) })
-    }
-
-    // TODO código duplicado na memoria? Otimizar
+    var inMemoryCode by remember { mutableStateOf(editorViewModel.inMemoryCode) }
 
     TextField(
         textStyle = TextStyle(color = Color.White),
         value = inMemoryCode,
-        onValueChange = {
-            inMemoryCode = it
-            code = it
+        onValueChange = { newCode ->
+            inMemoryCode = newCode
+            editorViewModel.inMemoryCode = newCode
         },
         modifier = Modifier.fillMaxSize()
     )
@@ -107,5 +102,5 @@ fun runCode() {
     println("Running code...")
     val jgolInterpreter = Jgol()
     // TODO o código que vai ser executado deve ser o inMemory(Pode ainda não ter sido salvo) ou do arquivo?
-    jgolInterpreter.run(code)
+    jgolInterpreter.run(EditorViewModel.inMemoryCode)
 }

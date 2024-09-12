@@ -31,20 +31,35 @@ class Jgol {
     }
 
     fun run(source: String) {
+        val startTime = System.currentTimeMillis()
+
         val scanner = Scanner(source)
         val tokens = scanner.scanTokens()
         val parser = Parser(tokens)
         val statements = parser.parse()
 
-        if (hadError) return
+        if (hadError) {
+            hadError = false
+            finishProgram(startTime)
+            return
+        }
 
         val resolver = Resolver(interpreter)
         resolver.resolve(statements)
 
-        if (hadError) return
+        if (hadError) {
+            hadError = false
+            finishProgram(startTime)
+            return
+        }
 
         interpreter.interpret(statements)
+        finishProgram(startTime)
 
     }
 
+    fun finishProgram(startTime: Long) {
+        val endTime = System.currentTimeMillis() - startTime
+        println("Execução finalizada em $endTime Milissegundos...")
+    }
 }

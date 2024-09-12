@@ -42,6 +42,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) - (right as Double)
             }
+            // TODO to implement retorno de Long e Int, vide clock native funciton
             TokenType.PLUS -> {
                 when {
                     left is Double && right is Double -> left + right

@@ -106,7 +106,7 @@ class Scanner(var source: String) {
         }
 
         if (isAtEnd()) {
-            Jgol.error(line, "String não terminada")
+            Jgol.error(line, "String não finalizada com '\"'")
             return
         }
         advance()
