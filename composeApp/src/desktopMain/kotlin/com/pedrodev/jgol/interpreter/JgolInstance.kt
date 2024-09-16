@@ -9,8 +9,10 @@ class JgolInstance(var klass: JgolClass) {
             return fields[name.lexeme]
         }
 
-       val method = klass.findMethod(name.lexeme)
-        if(method != null) return method
+        val method = klass.findMethod(name.lexeme)
+
+        // TODO testar isso ver se não vai quebrar o que já funcionava antes de incluir o 'this'
+        if (method != null && method is JgolFunction) return method.bind(this)
 
         throw RuntimeError(name, "Propriedade '" + name.lexeme + "' indefinida.")
     }

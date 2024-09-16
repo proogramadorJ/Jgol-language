@@ -158,7 +158,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         return value
     }
 
-    private fun lookUpVariable(name: Token, expr: Expr.Variable): Any? {
+    override fun visitThisExpr(expr: Expr.This): Any? {
+       return lookUpVariable(expr.keyword, expr)
+    }
+
+    private fun lookUpVariable(name: Token, expr: Expr): Any? {
         val distance = locals[expr]
         return if (distance != null) {
             environment.getAt(distance, name.lexeme)

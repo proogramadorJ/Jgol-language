@@ -1,11 +1,13 @@
 package com.pedrodev.jgol.interpreter
 
 import java.util.*
+import kotlin.math.exp
 
 class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt.Visitor<Void?> {
 
     private val scopes: Stack<MutableMap<String, Boolean>> = Stack()
     private var currentFunction: FunctionType = FunctionType.NONE
+    private var currentClass: ClassType = ClassType.NONE
 
     override fun visitAssignExpr(expr: Expr.Assign): Void? {
         resolve(expr.value)
@@ -61,6 +63,15 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
     override fun visitSetExpr(expr: Expr.Set): Void? {
         resolve(expr.value)
         resolve(expr.obj)
+        return null
+    }
+
+    override fun visitThisExpr(expr: Expr.This): Void? {
+        if (currentClass == ClassType.NONE) {
+            Jgol.error(expr.keyword, "Não é possivel usar 'este' fora de uma classe.")
+            return null
+        }
+        resolveLocal(expr, expr.keyword)
         return null
     }
 
@@ -160,13 +171,19 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
     }
 
     override fun visitClassStmt(stmt: Stmt.Class): Void? {
+        val enclosingClass = currentClass
+        currentClass = ClassType.CLASS
+
         declare(stmt.name)
         define(stmt.name)
-
+        beginScope()
+        scopes.peek()["este"] = true
         stmt.methods.forEach { method ->
             val declaration = FunctionType.METHOD
             resolveFunction(method, declaration)
         }
+        endScope()
+        currentClass = enclosingClass
         return null
     }
 

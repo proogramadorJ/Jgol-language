@@ -15,7 +15,7 @@ class Environment(val enclosing: Environment? = null) {
         if (enclosing != null) {
             return enclosing.get(name)
         }
-        throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
+        throw RuntimeError(name, "Variavel '${name.lexeme}' indefinida.")
     }
 
     fun assign(name: Token, value: Any?) {
@@ -27,7 +27,7 @@ class Environment(val enclosing: Environment? = null) {
             enclosing.assign(name, value)
             return
         }
-        throw RuntimeError(name, "Undefined variable '${name.lexeme}'.")
+        throw RuntimeError(name, "Variavel '${name.lexeme}' indefinida.")
     }
 
     fun getAt(distance: Int, name: String): Any? {

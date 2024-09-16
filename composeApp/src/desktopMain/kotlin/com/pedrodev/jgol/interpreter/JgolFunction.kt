@@ -5,6 +5,12 @@ class JgolFunction(
     private val closure: Environment
 ) : JgolCallable {
 
+    fun bind(instance: JgolInstance): JgolFunction {
+        val environment = Environment(closure)
+        environment.define("este", instance) //TODO veriricar se precisa traduzir aqui tbm
+        return JgolFunction(declaration, environment)
+    }
+
     override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
         val environment = Environment(closure)
 

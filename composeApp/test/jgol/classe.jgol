@@ -1,10 +1,11 @@
 classe PrimeiraClasse {
-    teste(){
-        escreva("Ola a partir de PrimeiraClasse.teste()");
+    teste(value){
+        escreva("Ola a partir de PrimeiraClasse.teste() "+ value);
     }
 }
 
 escreva PrimeiraClasse;
 
 variavel obj = PrimeiraClasse();
-obj.teste();
+obj.novaPropriedade = 999;
+obj.teste(obj.novaPropriedade);

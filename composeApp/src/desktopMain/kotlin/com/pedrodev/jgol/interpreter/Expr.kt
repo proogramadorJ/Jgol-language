@@ -13,6 +13,7 @@ abstract class Expr {
         fun visitVariableExpr(expr: Variable): R
         fun visitGetExpr(expr: Get): R
         fun visitSetExpr(expr: Set): R
+        fun visitThisExpr(expr : This): R
     }
 
     class Assign(val name: Token, val value: Expr) : Expr() {
@@ -76,6 +77,14 @@ abstract class Expr {
         }
 
     }
+
+    class This(val keyword: Token) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitThisExpr(this)
+        }
+
+    }
+
 
     abstract fun <R> accept(visitor: Visitor<R>): R
 }

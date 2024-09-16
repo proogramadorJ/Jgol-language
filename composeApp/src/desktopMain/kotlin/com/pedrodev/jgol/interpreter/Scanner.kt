@@ -56,7 +56,7 @@ class Scanner(var source: String) {
                 } else if (isAlpha(c)) {
                     identifier()
                 } else {
-                   Jgol.error(line, "Caractere inesperado.")
+                   Jgol.error(line, "Caractere $c inesperado.")
                 }
             }
         }

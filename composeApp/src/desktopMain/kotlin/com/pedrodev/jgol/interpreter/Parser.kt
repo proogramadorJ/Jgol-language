@@ -1,6 +1,5 @@
 package com.pedrodev.jgol.interpreter
 
-import kotlin.math.exp
 
 // TODO testar/forçar todos os possiveis erros gerados durante o parsing
 
@@ -173,6 +172,7 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return Expr.Literal(previous().literal)
         }
+        if(match(TokenType.THIS)) return Expr.This(previous())
         if (match(TokenType.IDENTIFIER)) {
             return Expr.Variable(previous())
         }

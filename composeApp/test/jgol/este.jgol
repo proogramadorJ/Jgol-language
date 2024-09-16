@@ -1,0 +1,11 @@
+classe TesteThis{
+  a(){
+        escreva "Usando 'este' "+este.novaPropriedade;
+   }
+
+}
+
+
+variavel obj = TesteThis();
+obj.novaPropriedade = "Usando 'este'"
+obj.a();
