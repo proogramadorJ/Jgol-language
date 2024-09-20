@@ -172,7 +172,13 @@ class Parser(private val tokens: List<Token>) {
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return Expr.Literal(previous().literal)
         }
-        if(match(TokenType.THIS)) return Expr.This(previous())
+        if (match(TokenType.SUPER)) {
+            val keyword = previous()
+            consume(TokenType.DOT, "Esperado '.' depois de 'superior'.")
+            val method = consume(TokenType.IDENTIFIER, "Esperado o nome do metodo da super classe.")
+            return Expr.Super(keyword, method)
+        }
+        if (match(TokenType.THIS)) return Expr.This(previous())
         if (match(TokenType.IDENTIFIER)) {
             return Expr.Variable(previous())
         }
@@ -246,9 +252,9 @@ class Parser(private val tokens: List<Token>) {
     private fun classDeclaration(): Stmt.Class? {
         val name = consume(TokenType.IDENTIFIER, "Esperado nome da classe.")
 
-        var superclass : Expr.Variable? = null
+        var superclass: Expr.Variable? = null
 
-        if(match(TokenType.LESS)){
+        if (match(TokenType.LESS)) {
             consume(TokenType.IDENTIFIER, "Esperado o nome da super classe.")
             superclass = Expr.Variable(previous())
         }

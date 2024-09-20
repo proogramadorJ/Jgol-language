@@ -1,5 +1,8 @@
 package com.pedrodev.jgol.interpreter
 
+import org.jetbrains.skia.TextBlob
+import kotlin.math.exp
+
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     val globals = Environment()
@@ -162,6 +165,17 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         return lookUpVariable(expr.keyword, expr)
     }
 
+    override fun visitSuperExpr(expr: Expr.Super): Any? {
+        val distance: Int? = locals[expr]
+        val superclass: Any? = distance?.let { environment.getAt(it, "superior") }
+        val obj = distance?.let { environment.getAt(it - 1, "este") }
+        val method = if (superclass is JgolClass) superclass.findMethod(expr.method.lexeme) else null
+        if (method == null) {
+            throw RuntimeError(expr.method, "Propriedade indefinida '${expr.method.lexeme}'.")
+        }
+        return if (method is JgolFunction) method.bind(obj) else null
+    }
+
     private fun lookUpVariable(name: Token, expr: Expr): Any? {
         val distance = locals[expr]
         return if (distance != null) {
@@ -283,6 +297,11 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         }
 
         environment.define(stmt.name.lexeme, null)
+
+        if (stmt.superclass != null) {
+            environment = Environment(environment)
+            environment.define("superior", superclass)
+        }
 
         val methods = mutableMapOf<String, JgolFunction>()
         stmt.methods.forEach { method ->

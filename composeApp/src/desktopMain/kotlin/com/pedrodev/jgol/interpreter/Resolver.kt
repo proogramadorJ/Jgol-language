@@ -68,8 +68,18 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
 
     override fun visitThisExpr(expr: Expr.This): Void? {
         if (currentClass == ClassType.NONE) {
-            Jgol.error(expr.keyword, "Não é possivel usar 'este' fora de uma classe.")
+            Jgol.error(expr.keyword, "Não é possível usar 'este' fora de uma classe.")
             return null
+        }
+        resolveLocal(expr, expr.keyword)
+        return null
+    }
+
+    override fun visitSuperExpr(expr: Expr.Super): Void? {
+        if (currentClass == ClassType.NONE) {
+            Jgol.error(expr.keyword, "Não é possivel utilizar 'superior' fora de uma classe")
+        } else if (currentClass != ClassType.SUBCLASS) {
+            Jgol.error(expr.keyword, "Não é possivel utilizar 'superior' em uma classe sem uma super classe.")
         }
         resolveLocal(expr, expr.keyword)
         return null
@@ -182,7 +192,12 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         }
 
         if (stmt.superclass != null) {
+            currentClass = ClassType.SUBCLASS
             resolve(stmt.superclass)
+        }
+        if (stmt.superclass != null) {
+            beginScope()
+            scopes.peek().put("superior",  true)
         }
         beginScope()
         scopes.peek()["este"] = true
@@ -191,6 +206,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
             resolveFunction(method, declaration)
         }
         endScope()
+        if (stmt.superclass != null) endScope()
         currentClass = enclosingClass
         return null
     }

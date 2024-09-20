@@ -5,9 +5,9 @@ class JgolFunction(
     private val closure: Environment
 ) : JgolCallable {
 
-    fun bind(instance: JgolInstance): JgolFunction {
+    fun bind(instance: Any?): JgolFunction {
         val environment = Environment(closure)
-        environment.define("este", instance) //TODO veriricar se precisa traduzir aqui tbm
+        environment.define("este", instance)
         return JgolFunction(declaration, environment)
     }
 

@@ -14,6 +14,7 @@ abstract class Expr {
         fun visitGetExpr(expr: Get): R
         fun visitSetExpr(expr: Set): R
         fun visitThisExpr(expr : This): R
+        fun visitSuperExpr(expr : Super) : R
     }
 
     class Assign(val name: Token, val value: Expr) : Expr() {
@@ -74,6 +75,13 @@ abstract class Expr {
     class Set(val obj: Expr, val name: Token, val value: Expr) : Expr() {
         override fun <R> accept(visitor: Visitor<R>): R {
             return visitor.visitSetExpr(this)
+        }
+
+    }
+
+    class Super(val keyword: Token, val method: Token) : Expr(){
+        override fun <R> accept(visitor: Visitor<R>): R {
+           return visitor.visitSuperExpr(this)
         }
 
     }

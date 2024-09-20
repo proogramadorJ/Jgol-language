@@ -1,0 +1,14 @@
+classe Pai{
+    teste(){
+        escreva("Olá mundo do pai");
+    }
+}
+
+classe Filha < Pai{
+    teste(){
+       escreva("Olá mundo da filha");
+       superior.teste();
+    }
+}
+
+Filha().teste();
