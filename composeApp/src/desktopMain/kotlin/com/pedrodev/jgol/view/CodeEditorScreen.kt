@@ -14,7 +14,6 @@ import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.run_code
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -39,13 +38,14 @@ fun EditorScreen(navController: NavController) {
 fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = Color.Blue
     ) {
         Box(
         ) {
             Column {
                 MenuBarCompose()
                 CodeInputEditor(editorViewModel)
+               // EditorComNumerosDeLinha()
             }
         }
     }

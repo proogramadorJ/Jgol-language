@@ -159,7 +159,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
     }
 
     override fun visitThisExpr(expr: Expr.This): Any? {
-       return lookUpVariable(expr.keyword, expr)
+        return lookUpVariable(expr.keyword, expr)
     }
 
     private fun lookUpVariable(name: Token, expr: Expr): Any? {
@@ -274,6 +274,14 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
     }
 
     override fun visitClassStmt(stmt: Stmt.Class): Void? {
+        var superclass: Any? = null
+        if (stmt.superclass != null) {
+            superclass = evaluate(stmt.superclass)
+            if (superclass !is JgolClass) {
+                throw RuntimeError(stmt.superclass.name, "Super classe precisa ser uma classe.")
+            }
+        }
+
         environment.define(stmt.name.lexeme, null)
 
         val methods = mutableMapOf<String, JgolFunction>()
@@ -281,8 +289,12 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
             val function = JgolFunction(method, environment)
             methods[method.name.lexeme] = function
         }
+        val kclass = if (superclass is JgolClass) JgolClass(
+            stmt.name.lexeme,
+            superclass,
+            methods
+        ) else JgolClass(stmt.name.lexeme, null, methods)
 
-        val kclass = JgolClass(stmt.name.lexeme, methods)
         environment.assign(stmt.name, kclass)
         return null
     }
@@ -304,7 +316,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
         // TODO como implementar in/out ? JNI? Alguma outra gambiarra?
         // TODO Abrir um outro terminal e redirecionar in/out para ele
-//        globals.define("input", object : LoxCallable {
+//        globals.define("input", object : JgolCallable {
 //            override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
 //                val input = java.util.Scanner(System.`in`)
 //                val rawValue = input.nextLine()

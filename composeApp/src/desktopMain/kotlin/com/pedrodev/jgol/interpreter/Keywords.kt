@@ -1,7 +1,5 @@
 package com.pedrodev.jgol.interpreter
 
-// TODO decidir se as palavras reservadas de jgol serão essas mesmo.
-
 object Keywords {
     var jgolKeywords: Map<String, TokenType> = hashMapOf(
         "e" to TokenType.AND,
@@ -16,7 +14,7 @@ object Keywords {
         "escreva" to TokenType.PRINT,
         "retorne" to TokenType.RETURN,
         "superior" to TokenType.SUPER,
-        "este" to TokenType.THIS, // TODO rever se "this" vai ser traduzido como "este" mesmo.
+        "este" to TokenType.THIS,
         "verdadeiro" to TokenType.TRUE,
         "variavel" to TokenType.VAR,
         "enquanto" to TokenType.WHILE

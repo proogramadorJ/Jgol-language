@@ -1,6 +1,6 @@
 package com.pedrodev.jgol.interpreter
 
-class JgolClass(var name: String, var methods: Map<String, JgolFunction>?) : JgolCallable {
+class JgolClass(var name: String,var superclass : JgolClass?, var methods: Map<String, JgolFunction>?) : JgolCallable {
 
     override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
         val instance = JgolInstance(this)
@@ -18,6 +18,9 @@ class JgolClass(var name: String, var methods: Map<String, JgolFunction>?) : Jgo
     fun findMethod(name: String): Any? {
         if (methods?.containsKey(name) == true) {
             return methods!![name]
+        }
+        if(superclass != null){
+            return superclass!!.findMethod(name)
         }
         return null
     }

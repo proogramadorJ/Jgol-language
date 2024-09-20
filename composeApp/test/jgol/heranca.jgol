@@ -1,0 +1,13 @@
+classe Pai{
+    funcao teste(){
+        escreva("Olá mundo");
+    }
+}
+
+classe Filha < Pai{
+
+}
+
+variavel ojb = Filha();
+obj.teste();
+

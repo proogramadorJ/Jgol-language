@@ -176,6 +176,14 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
 
         declare(stmt.name)
         define(stmt.name)
+
+        if (stmt.superclass != null && stmt.name.lexeme == stmt.superclass.name.lexeme) {
+            Jgol.error(stmt.superclass.name, "Uma classe não poder herdar de si mesma.")
+        }
+
+        if (stmt.superclass != null) {
+            resolve(stmt.superclass)
+        }
         beginScope()
         scopes.peek()["este"] = true
         stmt.methods.forEach { method ->

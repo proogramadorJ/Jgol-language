@@ -242,8 +242,17 @@ class Parser(private val tokens: List<Token>) {
         }
     }
 
-    private fun classDeclaration(): Stmt {
+
+    private fun classDeclaration(): Stmt.Class? {
         val name = consume(TokenType.IDENTIFIER, "Esperado nome da classe.")
+
+        var superclass : Expr.Variable? = null
+
+        if(match(TokenType.LESS)){
+            consume(TokenType.IDENTIFIER, "Esperado o nome da super classe.")
+            superclass = Expr.Variable(previous())
+        }
+
         consume(TokenType.LEFT_BRACE, "Esperado '{' antes do corpo da classe.")
 
         val methods: MutableList<Stmt.Function> = mutableListOf()
@@ -252,8 +261,8 @@ class Parser(private val tokens: List<Token>) {
         }
 
         consume(TokenType.RIGHT_BRACE, "Esperado '}' depois do corpo da classe.")
-
-        return Stmt.Class(name, methods)
+        // TODO verificar se não vai quebrar quando não tiver super class
+        return Stmt.Class(name, superclass, methods)
     }
 
 
