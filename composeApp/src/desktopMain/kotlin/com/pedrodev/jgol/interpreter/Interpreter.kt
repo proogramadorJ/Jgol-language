@@ -318,7 +318,7 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         return null
     }
 
-    val clockFunctionDefiniton = object : JgolCallable {
+    private val clockFunctionDefiniton = object : JgolCallable {
         override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
             return System.currentTimeMillis().toDouble() / 1000.0 // TODO tá certo isso?
         }
@@ -329,28 +329,29 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     }
 
+    private val stdInDefinition = object : JgolCallable {
+        override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
+            val input = java.util.Scanner(System.`in`)
+            val rawValue = input.nextLine()
+            return try {
+                rawValue.trim().toDouble()
+            } catch (e: Exception) {
+                try {
+                    rawValue.toBoolean()
+                } catch (e: Exception) {
+                    rawValue
+                }
+            }
+        }
+
+        override fun arity(): Int {
+            return 0
+        }
+    }
+
 
     init {
         globals.define("clock", clockFunctionDefiniton)
-
-        // TODO como implementar in/out ? JNI? Alguma outra gambiarra?
-        // TODO Abrir um outro terminal e redirecionar in/out para ele
-//        globals.define("input", object : JgolCallable {
-//            override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
-//                val input = java.util.Scanner(System.`in`)
-//                val rawValue = input.nextLine()
-//                return try {
-//                    rawValue.trim().toDouble()
-//                } catch (e: Exception) {
-//                    try {
-//                        rawValue.toBoolean()
-//                    } catch (e: Exception) {
-//                        rawValue
-//                    }
-//                }
-//            }
-//
-//            override fun arity(): Int = 0
-//        })
+        globals.define("leia", stdInDefinition)
     }
 }

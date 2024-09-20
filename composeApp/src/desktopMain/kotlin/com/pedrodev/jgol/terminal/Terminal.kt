@@ -6,7 +6,7 @@ class Terminal {
 
     companion object {
         init {
-            System.load("C:\\Users\\pedro\\Desenvolvimento\\libs\\terminal.dll")
+            System.load("C:\\Users\\pedro\\Desenvolvimento\\desktop\\Jgol\\Jgol\\jni\\dll\\terminal.dll")
         }
     }
 }

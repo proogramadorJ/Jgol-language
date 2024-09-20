@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
+import com.pedrodev.jgol.terminal.Terminal
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.run_code
 import java.nio.file.Files
@@ -102,5 +103,14 @@ fun runCode() {
     println("Running code...")
     val jgolInterpreter = Jgol()
     // TODO o código que vai ser executado deve ser o inMemory(Pode ainda não ter sido salvo) ou do arquivo?
+    openTerminal()
     jgolInterpreter.run(EditorViewModel.inMemoryCode)
+
 }
+
+fun openTerminal() {
+    Terminal().init()
+}
+
+
+

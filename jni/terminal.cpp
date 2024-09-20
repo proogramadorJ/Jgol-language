@@ -1,70 +1,93 @@
 #include <jni.h>
 #include <windows.h>
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <locale>
+#include <fcntl.h>
+#include <io.h>
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv *env, jobject obj) {
-    HANDLE hInRead, hInWrite;
-       HANDLE hOutRead, hOutWrite;
-       SECURITY_ATTRIBUTES sa;
-       PROCESS_INFORMATION pi;
-       STARTUPINFO si;
-       DWORD bytesWritten, bytesRead;
-       char buffer[128];
+void setUTF8Locale() {
+  setlocale(LC_ALL, ".UTF8");
+}
 
-       // Configura os atributos de segurança para os pipes
-       sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-       sa.bInheritHandle = TRUE;  // Permitir herança dos pipes para o processo filho
-       sa.lpSecurityDescriptor = NULL;
+BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
+    switch (dwCtrlType) {
+        case CTRL_CLOSE_EVENT:
+            // Intercepta o evento de fechamento da console
+            // Retornamos TRUE para indicar que o evento foi tratado
+            // Isso impede que o processo seja encerrado
+            std::cerr << "Evento de fechamento da console interceptado. A aplicação continuará executando." << std::endl;
+            return TRUE;
 
-       // Cria pipes para redirecionar stdin e stdout
-       if (!CreatePipe(&hOutRead, &hOutWrite, &sa, 0)) {
-           fprintf(stderr, "Erro ao criar pipe de saída\n");
-           return;
-       }
-       if (!CreatePipe(&hInRead, &hInWrite, &sa, 0)) {
-           fprintf(stderr, "Erro ao criar pipe de entrada\n");
-           return;
-       }
+        case CTRL_C_EVENT:
+        case CTRL_BREAK_EVENT:
+        case CTRL_LOGOFF_EVENT:
+        case CTRL_SHUTDOWN_EVENT:
+            // Para outros eventos, permitimos o comportamento padrão
+            return FALSE;
 
-       // Define os handles para não serem herdados pelo processo pai
-       SetHandleInformation(hOutRead, HANDLE_FLAG_INHERIT, 0);
-       SetHandleInformation(hInWrite, HANDLE_FLAG_INHERIT, 0);
+        default:
+            return FALSE;
+    }
+}
 
-       // Configura o STARTUPINFO para redirecionar stdin e stdout
-       ZeroMemory(&si, sizeof(STARTUPINFO));
-       si.cb = sizeof(STARTUPINFO);
-       si.hStdInput = hInRead;
-       si.hStdOutput = hOutWrite;
-       si.hStdError = hOutWrite;
-       si.dwFlags |= STARTF_USESTDHANDLES;
 
-       // Cria o processo do terminal (cmd.exe) com a flag CREATE_NEW_CONSOLE
-       if (!CreateProcess(NULL, "cmd.exe", NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-           fprintf(stderr, "Erro ao criar processo do terminal\n");
-           return;
-       }
+// TODO ao invés de salvar no arquivo os logs, devolver um status para aplicação kotlin
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
+  std::ofstream arquivo("terminal.dll-output.txt", std::ios::out | std::ios::app);
 
-       // Fecha os handles que não são mais necessários no processo pai
-       CloseHandle(hInRead);
-       CloseHandle(hOutWrite);
+  if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
+          // Falha ao registrar o manipulador
+          DWORD error = GetLastError();
+          std::cerr << "Falha ao registrar o manipulador de eventos da console. Código de erro: " << error << std::endl;
+          return;
+  }
 
-       // Escreve um comando no stdin do terminal
-       const char *command = "echo Hello from JNI\n";
-       WriteFile(hInWrite, command, strlen(command), &bytesWritten, NULL);
+  if (!FreeConsole()) {
+    DWORD error = GetLastError();
+    if (error != ERROR_INVALID_HANDLE) { // ERROR_INVALID_HANDLE significa que não havia console para liberar
+      arquivo << "Falha ao liberar a console existente. Código de erro: " << error << std::endl;
+    }
+  }
 
-       // Lê a saída do terminal
-       while (ReadFile(hOutRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
-           buffer[bytesRead] = '\0';  // Termina a string com null
-           printf("%s", buffer);  // Imprime a saída do terminal no console Java
-       }
+  if (!AllocConsole()) {
+    DWORD error = GetLastError();
+    // Opcional: tratar o erro, por exemplo, logando
+    arquivo << "Falha ao alocar um novo console. Código de erro: " << error << std::endl;
+    return;
+  }
 
-       // Espera o processo do terminal terminar
-       WaitForSingleObject(pi.hProcess, INFINITE);
+  SetConsoleOutputCP(CP_UTF8);
+  SetConsoleCP(CP_UTF8);
 
-       // Fecha os handles restantes
-       CloseHandle(hInWrite);
-       CloseHandle(hOutRead);
-       CloseHandle(pi.hProcess);
-       CloseHandle(pi.hThread);
+  // Obtém o handle para a saída padrão (STD_OUTPUT_HANDLE)
+  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (hOut == INVALID_HANDLE_VALUE) {
+    arquivo << "Falha ao obter o handler para saida padrão";
+    return;
+  }
+
+  HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+  if (hIn == INVALID_HANDLE_VALUE) {
+    arquivo << "Falha ao obter o handler para entrada padrão";
+    return;
+  }
+  FILE * fpOut;
+  freopen_s( & fpOut, "CONOUT$", "w", stdout);
+
+  FILE * fpIn;
+  freopen_s( & fpIn, "CONIN$", "r", stdin);
+
+  FILE * fpErr;
+  freopen_s( & fpErr, "CONOUT$", "w", stderr);
+
+  setUTF8Locale();
+
+  std::ios::sync_with_stdio();
+  arquivo << "Alocação de console funcionou\n";
+  arquivo.close();
+
 }
