@@ -38,14 +38,14 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
   std::ofstream arquivo("terminal.dll-output.txt", std::ios::out | std::ios::app);
-
+/*
   if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
           // Falha ao registrar o manipulador
           DWORD error = GetLastError();
-          std::cerr << "Falha ao registrar o manipulador de eventos da console. Código de erro: " << error << std::endl;
+          arquivo << "Falha ao registrar o manipulador de eventos da console. Código de erro: " << error << std::endl;
           return;
   }
-
+*/
   if (!FreeConsole()) {
     DWORD error = GetLastError();
     if (error != ERROR_INVALID_HANDLE) { // ERROR_INVALID_HANDLE significa que não havia console para liberar
@@ -55,7 +55,6 @@ Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
 
   if (!AllocConsole()) {
     DWORD error = GetLastError();
-    // Opcional: tratar o erro, por exemplo, logando
     arquivo << "Falha ao alocar um novo console. Código de erro: " << error << std::endl;
     return;
   }
@@ -63,7 +62,6 @@ Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
   SetConsoleOutputCP(CP_UTF8);
   SetConsoleCP(CP_UTF8);
 
-  // Obtém o handle para a saída padrão (STD_OUTPUT_HANDLE)
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE) {
     arquivo << "Falha ao obter o handler para saida padrão";
