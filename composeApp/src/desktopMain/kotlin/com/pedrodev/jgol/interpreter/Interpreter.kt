@@ -337,6 +337,8 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                 rawValue.trim().toDouble()
             } catch (e: Exception) {
                 try {
+                    //TODO isso nunca retorna boolean
+                    //TODO verificar se existe nextBolean em Java/Koltin
                     rawValue.toBoolean()
                 } catch (e: Exception) {
                     rawValue

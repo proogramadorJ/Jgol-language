@@ -13,8 +13,15 @@ import androidx.navigation.NavController
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import com.pedrodev.jgol.terminal.Terminal
+import io.github.vinceglb.filekit.core.FileKit
 import jgol.composeapp.generated.resources.Res
+import jgol.composeapp.generated.resources.back
+import jgol.composeapp.generated.resources.return_arrow
 import jgol.composeapp.generated.resources.run_code
+import jgol.composeapp.generated.resources.save
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -46,7 +53,6 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
             Column {
                 MenuBarCompose()
                 CodeInputEditor(editorViewModel)
-               // EditorComNumerosDeLinha()
             }
         }
     }
@@ -77,11 +83,39 @@ fun MenuBarCompose() {
             modifier = Modifier.height(40.dp).fillMaxWidth(),
             color = Color.DarkGray
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.End
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+
             ) {
+                IconButton(
+                    onClick = {  },
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                        .padding(end = 10.dp)
+                ) {
+                    Icon(
+                        painter = org.jetbrains.compose.resources.painterResource(Res.drawable.return_arrow),
+                        contentDescription = "Back",
+                    )
+                }
+                IconButton(
+                    onClick = { saveCode() },
+                    modifier = Modifier
+                        .width(30.dp)
+                        .height(30.dp)
+                        .padding(end = 10.dp)
+                ) {
+                    Icon(
+                        painter = org.jetbrains.compose.resources.painterResource(Res.drawable.save),
+                        contentDescription = "Save code",
+                    )
+                }
+
                 IconButton(
                     onClick = { runCode() },
                     modifier = Modifier
@@ -95,14 +129,32 @@ fun MenuBarCompose() {
                     )
                 }
             }
+
+
         }
+    }
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun saveCode() {
+    if (!HomeScreenEditScreenSharedData.isFileSelected) {
+        GlobalScope.launch {
+            FileKit.saveFile(EditorViewModel.inMemoryCode.toByteArray(), "main", "jgol")
+            // TODO incluir logs no arquivo da IDE   println("Code saved")
+            // TODO adiconar TOAST
+        }
+    } else {
+        Files.writeString(
+            HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) },
+            EditorViewModel.inMemoryCode
+        )
+        // TODO incluir logs no arquivo da IDE   println("Code saved")
     }
 }
 
 fun runCode() {
     println("Running code...")
     val jgolInterpreter = Jgol()
-    // TODO o código que vai ser executado deve ser o inMemory(Pode ainda não ter sido salvo) ou do arquivo?
     openTerminal()
     jgolInterpreter.run(EditorViewModel.inMemoryCode)
 

@@ -55,7 +55,8 @@ fun MainContent(navController: NavController) {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-fun CardsRow(navController: NavController) { Row(
+fun CardsRow(navController: NavController) {
+    Row(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -115,22 +116,16 @@ fun CardsRow(navController: NavController) { Row(
 }
 
 fun createNewFile(navController: NavController) {
-    println("New File")
     navController.navigate("EditorScreen")
 }
 
-fun openFile(navController : NavController) = runBlocking {
-    println("Open File")
+fun openFile(navController: NavController) = runBlocking {
     val file = FileKit.pickFile()
     val filePath = file?.path
 
     if (!filePath.isNullOrEmpty()) {
-        println("Selected file path is: $filePath")
         HomeScreenEditScreenSharedData.isFileSelected = true
         HomeScreenEditScreenSharedData.filePath = filePath
         navController.navigate("EditorScreen")
-    } else {
-        println("No file selected")
     }
-
 }
