@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import com.pedrodev.jgol.terminal.Terminal
+import com.pedrodev.jgol.util.DefaultSource
 import io.github.vinceglb.filekit.core.FileKit
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.back
@@ -25,9 +26,15 @@ import kotlinx.coroutines.launch
 import java.nio.file.Files
 import java.nio.file.Path
 
+var navControllerScreeen: NavController? = null
+/*
+ TODO bug -> Quando clicar no new file e depois volta para a tela inicial e tenta carregar um arquivo
+ TODO não funciona, está carregando o último código.
+*/
+
 
 object EditorViewModel : ViewModel() {
-    var inMemoryCode by mutableStateOf(if (HomeScreenEditScreenSharedData.isFileSelected) getCodeFromFile() else "")
+    var inMemoryCode by mutableStateOf(if (HomeScreenEditScreenSharedData.isFileSelected) getCodeFromFile() else DefaultSource.code)
 }
 
 fun getCodeFromFile(): String {
@@ -36,6 +43,7 @@ fun getCodeFromFile(): String {
 
 @Composable
 fun EditorScreen(navController: NavController) {
+    navControllerScreeen = navController
     MaterialTheme {
         MainContentEditorScreen(EditorViewModel)
     }
@@ -92,7 +100,7 @@ fun MenuBarCompose() {
 
             ) {
                 IconButton(
-                    onClick = {  },
+                    onClick = { back() },
                     modifier = Modifier
                         .width(30.dp)
                         .height(30.dp)
@@ -135,11 +143,20 @@ fun MenuBarCompose() {
     }
 }
 
+fun back() {
+    HomeScreenEditScreenSharedData.isFileSelected = false
+    HomeScreenEditScreenSharedData.filePath = null
+
+    navControllerScreeen?.popBackStack()
+}
+
 @OptIn(DelicateCoroutinesApi::class)
 fun saveCode() {
     if (!HomeScreenEditScreenSharedData.isFileSelected) {
         GlobalScope.launch {
-            FileKit.saveFile(EditorViewModel.inMemoryCode.toByteArray(), "main", "jgol")
+            val file = FileKit.saveFile(EditorViewModel.inMemoryCode.toByteArray(), "main", "jgol")
+            HomeScreenEditScreenSharedData.filePath = file?.path
+            HomeScreenEditScreenSharedData.isFileSelected = true
             // TODO incluir logs no arquivo da IDE   println("Code saved")
             // TODO adiconar TOAST
         }
