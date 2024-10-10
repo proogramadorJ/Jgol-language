@@ -172,7 +172,8 @@ fun saveCode() {
 fun runCode() {
     println("Running code...")
     val jgolInterpreter = Jgol()
-    openTerminal()
+    //TODO durante dev utilizar terminal integrado IDE
+    //openTerminal()
     jgolInterpreter.run(EditorViewModel.inMemoryCode)
 
 }

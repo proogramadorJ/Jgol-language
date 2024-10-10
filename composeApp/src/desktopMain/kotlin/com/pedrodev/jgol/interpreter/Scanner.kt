@@ -22,6 +22,8 @@ class Scanner(var source: String) {
         val c: Char = advance()
 
         when (c) {
+            '[' -> addToken(TokenType.LEFT_BRACKET)
+            ']' -> addToken(TokenType.RIGHT_BRACKET)
             '(' -> addToken(TokenType.LEFT_PAREN)
             ')' -> addToken(TokenType.RIGHT_PAREN)
             '{' -> addToken(TokenType.LEFT_BRACE)
@@ -56,7 +58,7 @@ class Scanner(var source: String) {
                 } else if (isAlpha(c)) {
                     identifier()
                 } else {
-                   Jgol.error(line, "Caractere $c inesperado.")
+                    Jgol.error(line, "Caractere $c inesperado.")
                 }
             }
         }

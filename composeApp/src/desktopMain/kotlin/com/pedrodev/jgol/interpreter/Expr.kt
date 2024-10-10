@@ -13,9 +13,13 @@ abstract class Expr {
         fun visitVariableExpr(expr: Variable): R
         fun visitGetExpr(expr: Get): R
         fun visitSetExpr(expr: Set): R
-        fun visitThisExpr(expr : This): R
-        fun visitSuperExpr(expr : Super) : R
+        fun visitThisExpr(expr: This): R
+        fun visitSuperExpr(expr: Super): R
+        fun visitArrayLiteralExpr(expr: ArrayLiteral): R
+        fun visitArrayAccessExpr(expr: ArrayAccess): R
+        fun vistiArraySetExpr(expr: ArraySet): R
     }
+
 
     class Assign(val name: Token, val value: Expr) : Expr() {
         override fun <R> accept(visitor: Visitor<R>): R {
@@ -79,9 +83,9 @@ abstract class Expr {
 
     }
 
-    class Super(val keyword: Token, val method: Token) : Expr(){
+    class Super(val keyword: Token, val method: Token) : Expr() {
         override fun <R> accept(visitor: Visitor<R>): R {
-           return visitor.visitSuperExpr(this)
+            return visitor.visitSuperExpr(this)
         }
 
     }
@@ -89,6 +93,26 @@ abstract class Expr {
     class This(val keyword: Token) : Expr() {
         override fun <R> accept(visitor: Visitor<R>): R {
             return visitor.visitThisExpr(this)
+        }
+
+    }
+
+    class ArrayLiteral(val elements: List<Expr>) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitArrayLiteralExpr(this)
+        }
+    }
+
+    class ArrayAccess(val token: Token, val array: Expr, val index: Expr) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitArrayAccessExpr(this)
+        }
+
+    }
+
+    class ArraySet(val token: Token, val array: Expr, val index: Expr, val value: Expr) : Expr() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.vistiArraySetExpr(this)
         }
 
     }

@@ -49,7 +49,10 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
 
     override fun visitVariableExpr(expr: Expr.Variable): Void? {
         if (scopes.isNotEmpty() && scopes.peek()[expr.name.lexeme] == false) {
-            Jgol.error(expr.name, "Não é possível ler a variável local em seu próprio inicializador.")
+            Jgol.error(
+                expr.name,
+                "Não é possível ler a variável local em seu próprio inicializador."
+            )
         }
         resolveLocal(expr, expr.name)
         return null
@@ -79,9 +82,37 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         if (currentClass == ClassType.NONE) {
             Jgol.error(expr.keyword, "Não é possivel utilizar 'superior' fora de uma classe")
         } else if (currentClass != ClassType.SUBCLASS) {
-            Jgol.error(expr.keyword, "Não é possivel utilizar 'superior' em uma classe sem uma super classe.")
+            Jgol.error(
+                expr.keyword,
+                "Não é possivel utilizar 'superior' em uma classe sem uma super classe."
+            )
         }
         resolveLocal(expr, expr.keyword)
+        return null
+    }
+
+    // TODO implementar resolver de array
+    override fun visitArrayLiteralExpr(expr: Expr.ArrayLiteral): Void? {
+        expr.elements.forEach {
+            resolve(it)
+        }
+        return null
+
+    }
+
+
+    override fun visitArrayAccessExpr(expr: Expr.ArrayAccess): Void? {
+        resolve(expr.array)
+        resolve(expr.index)
+        return null
+
+
+    }
+
+    override fun vistiArraySetExpr(expr: Expr.ArraySet): Void? {
+        resolve(expr.array)
+        resolve(expr.index)
+        resolve(expr.value)
         return null
     }
 
@@ -197,7 +228,7 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         }
         if (stmt.superclass != null) {
             beginScope()
-            scopes.peek().put("superior",  true)
+            scopes.peek().put("superior", true)
         }
         beginScope()
         scopes.peek()["este"] = true

@@ -20,14 +20,24 @@ class Parser(private val tokens: List<Token>) {
             val equals = previous()
             val value = assignment()
 
-            if (expr is Expr.Variable) {
-                val name = expr.name
-                return Expr.Assign(name, value)
-            } else if (expr is Expr.Get) {
-                val get: Expr.Get = expr
-                return Expr.Set(get.obj, get.name, value)
+            when (expr) {
+                is Expr.Variable -> {
+                    val name = expr.name
+                    return Expr.Assign(name, value)
+                }
+
+                is Expr.ArrayAccess -> {
+                    val array: Expr.ArrayAccess = expr
+                    return Expr.ArraySet(expr.token, array.array, array.index, value)
+                }
+
+                is Expr.Get -> {
+                    val get: Expr.Get = expr
+                    return Expr.Set(get.obj, get.name, value)
+                }
+
+                else -> error(equals, "Destino de atribuição inválido.")
             }
-            error(equals, "Destino de atribuição inválido.")
         }
         return expr
     }
@@ -96,7 +106,13 @@ class Parser(private val tokens: List<Token>) {
     private fun comparison(): Expr {
         var expr = term()
 
-        while (match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+        while (match(
+                TokenType.GREATER,
+                TokenType.GREATER_EQUAL,
+                TokenType.LESS,
+                TokenType.LESS_EQUAL
+            )
+        ) {
             val operator = previous()
             val right = term()
             expr = Expr.Binary(expr, operator, right)
@@ -141,6 +157,11 @@ class Parser(private val tokens: List<Token>) {
         while (true) {
             if (match(TokenType.LEFT_PAREN)) {
                 expr = finishCall(expr)
+            } else if (match(TokenType.LEFT_BRACKET)) {
+                val index = expression()
+                consume(TokenType.RIGHT_BRACKET, "Esperado ']' após o índice.")
+                //TODO somente para passar no primeiro teste, depois obter a localização real do token
+                expr = Expr.ArrayAccess(Token(TokenType.LEFT_BRACKET, "[", null, 0),expr, index)
             } else if (match(TokenType.DOT)) {
                 val name = consume(TokenType.IDENTIFIER, "Esperado nome da propriedade após '.'.")
                 expr = Expr.Get(expr, name)
@@ -166,6 +187,16 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun primary(): Expr {
+        if (match(TokenType.LEFT_BRACKET)) {
+            val elements = mutableListOf<Expr>()
+            if (!check(TokenType.RIGHT_BRACKET)) {
+                do {
+                    elements.add(expression())
+                } while (match(TokenType.COMMA))
+            }
+            consume(TokenType.RIGHT_BRACKET, "Esperado ']' após os elementos do array.")
+            return Expr.ArrayLiteral(elements)
+        }
         if (match(TokenType.FALSE)) return Expr.Literal(false)
         if (match(TokenType.TRUE)) return Expr.Literal(true)
         if (match(TokenType.NIL)) return Expr.Literal(null)

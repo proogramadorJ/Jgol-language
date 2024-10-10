@@ -1,0 +1,2 @@
+g++ -shared -o C:\Users\pedro\Desenvolvimento\desktop\Jgol\Jgol\jni\dll\terminal.dll -I"C:\Users\pedro\.jdks\jbr-17.0.9\include" -I"C:\Users\pedro\.jdks\jbr-17.0.9\include\win32" C:\Users\pedro\Desenvolvimento\desktop\Jgol\Jgol\jni\terminal.cpp
+echo Dll gerada com sucesso

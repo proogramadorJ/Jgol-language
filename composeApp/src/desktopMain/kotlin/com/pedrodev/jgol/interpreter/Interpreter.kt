@@ -56,7 +56,10 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                     left is String && right is String -> left + right
                     left is String && right is Double -> left + stringify(right)
                     left is Double && right is String -> stringify(left) + right
-                    else -> throw RuntimeError(expr.operator, "Os operandos devem ser dois números ou duas strings.")
+                    else -> throw RuntimeError(
+                        expr.operator,
+                        "Os operandos devem ser dois números ou duas strings."
+                    )
                 }
             }
 
@@ -86,7 +89,10 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         }
 
         if (arguments.size != callee.arity()) {
-            throw RuntimeError(expr.paren, "Esperado ${callee.arity()} argumentos mas recebeu ${arguments.size}.")
+            throw RuntimeError(
+                expr.paren,
+                "Esperado ${callee.arity()} argumentos mas recebeu ${arguments.size}."
+            )
         }
 
         return callee.call(this, arguments)
@@ -169,11 +175,65 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         val distance: Int? = locals[expr]
         val superclass: Any? = distance?.let { environment.getAt(it, "superior") }
         val obj = distance?.let { environment.getAt(it - 1, "este") }
-        val method = if (superclass is JgolClass) superclass.findMethod(expr.method.lexeme) else null
+        val method =
+            if (superclass is JgolClass) superclass.findMethod(expr.method.lexeme) else null
         if (method == null) {
             throw RuntimeError(expr.method, "Propriedade indefinida '${expr.method.lexeme}'.")
         }
         return if (method is JgolFunction) method.bind(obj) else null
+    }
+
+    override fun visitArrayLiteralExpr(expr: Expr.ArrayLiteral): Any {
+        val elements = expr.elements.map { evaluate(it) }
+        return elements
+    }
+
+    override fun visitArrayAccessExpr(expr: Expr.ArrayAccess): Any? {
+        val array = evaluate(expr.array)
+        val index = evaluate(expr.index)
+
+
+        if (array !is List<*>) {
+            throw RuntimeError(expr.token, "Só é possível indexar arrays.")
+        }
+
+        if (index !is Double) {
+            throw RuntimeError(expr.token, "O índice do array deve ser um número.")
+        }
+
+        val list = array as List<Any?>
+        val idx = index.toInt()
+
+        if (idx < 0 || idx >= list.size) {
+            throw RuntimeError(expr.token, "Índice do array fora dos limites.")
+        }
+
+        return list[idx]
+
+    }
+
+    override fun vistiArraySetExpr(expr: Expr.ArraySet): Any? {
+        val array = evaluate(expr.array)
+        val index = evaluate(expr.index)
+        val value = evaluate(expr.value)
+
+        if (array !is List<*>) {
+            throw RuntimeError(expr.token, "Só é possível indexar arrays.")
+        }
+
+        if (index !is Double) {
+            throw RuntimeError(expr.token, "O índice do array deve ser um número.")
+        }
+
+        val list = array as MutableList<Any?>
+        val idx = index.toInt()
+
+        if (idx < 0 || idx >= list.size) {
+            throw RuntimeError(expr.token, "Índice do array fora dos limites.")
+        }
+
+        list[idx] = value
+        return value
     }
 
     private fun lookUpVariable(name: Token, expr: Expr): Any? {

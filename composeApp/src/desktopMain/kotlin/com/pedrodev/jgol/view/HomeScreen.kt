@@ -51,7 +51,6 @@ fun MainContent(navController: NavController) {
     }
 }
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
