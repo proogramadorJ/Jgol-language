@@ -30,7 +30,11 @@ import jgol.composeapp.generated.resources.new_document
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
+import java.awt.SystemColor.window
+import java.awt.SystemTray
+import java.awt.Toolkit
+import java.awt.TrayIcon
+import javax.swing.JOptionPane
 
 @Composable
 @Preview
@@ -121,10 +125,16 @@ fun createNewFile(navController: NavController) {
 fun openFile(navController: NavController) = runBlocking {
     val file = FileKit.pickFile()
     val filePath = file?.path
-
     if (!filePath.isNullOrEmpty()) {
-        HomeScreenEditScreenSharedData.isFileSelected = true
-        HomeScreenEditScreenSharedData.filePath = filePath
-        navController.navigate("EditorScreen")
+        if (filePath.toUpperCase().endsWith(".JGOL")) {
+            HomeScreenEditScreenSharedData.isFileSelected = true
+            HomeScreenEditScreenSharedData.filePath = filePath
+            navController.navigate("EditorScreen")
+        } else {
+            //TODO notificar como?
+
+        }
+
+
     }
 }

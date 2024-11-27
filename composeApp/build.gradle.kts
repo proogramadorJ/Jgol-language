@@ -8,10 +8,10 @@ plugins {
 
 kotlin {
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -33,9 +33,15 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation("org.jetbrains.jediterm:jediterm-core:3.47")
+            implementation("org.jetbrains.jediterm:jediterm-ui:3.47")
+            implementation("org.slf4j:slf4j-api:2.0.0") // API do SLF4J
+            implementation("ch.qos.logback:logback-classic:1.4.7") // Implementação do Logback
+
         }
     }
 }
+
 
 
 compose.desktop {
