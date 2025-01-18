@@ -32,7 +32,6 @@ fun HomeScreen(navController: NavController) {
 @Preview
 @Composable
 fun MainContent(navController: NavController) {
-    Session.initSession()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.DarkGray
@@ -106,7 +105,7 @@ fun CardsRow(navController: NavController) {
 
 fun createNewFile(navController: NavController) {
     navController.navigate("EditorScreen")
-    SessionLogs.log("Navegando para EditorScreen")
+    SessionLogs.log("Navegando Para EditorScreen: Carregando código a partir de template padrão.")
 }
 
 fun openFile(navController: NavController) = runBlocking {
@@ -118,6 +117,7 @@ fun openFile(navController: NavController) = runBlocking {
         if (filePath.toUpperCase().endsWith(".JGOL")) {
             HomeScreenEditScreenSharedData.isFileSelected = true
             HomeScreenEditScreenSharedData.filePath = filePath
+            SessionLogs.log("Navegando Para EditorScreen: Carregando código a partir de arquivo.")
             navController.navigate("EditorScreen")
         } else {
             //TODO notificar como?

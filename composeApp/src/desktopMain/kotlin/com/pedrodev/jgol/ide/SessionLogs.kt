@@ -13,7 +13,7 @@ object SessionLogs {
     //TODO colocar isso aqui em uma thread separada
     fun log(text: String) {
         try {
-            file.appendText(text)
+            file.appendText(text + "\n")
         } catch (error: IOException) {
             println("Erro ao tentar salvar log da sessão.")
         }

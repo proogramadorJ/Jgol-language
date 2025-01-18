@@ -4,11 +4,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.pedrodev.jgol.ide.Session
 import com.pedrodev.jgol.navigation.SetupNavigation
 import java.awt.Toolkit
 
 fun main() = application {
 
+    Session.initSession()
     val screenSize = Toolkit.getDefaultToolkit().screenSize
 
     // println("width ${screenSize.width} px")
