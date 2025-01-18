@@ -1,26 +1,16 @@
 package com.pedrodev.jgol.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.pedrodev.jgol.ide.Session
+import com.pedrodev.jgol.ide.SessionLogs
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.pickFile
@@ -30,11 +20,6 @@ import jgol.composeapp.generated.resources.new_document
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import java.awt.SystemColor.window
-import java.awt.SystemTray
-import java.awt.Toolkit
-import java.awt.TrayIcon
-import javax.swing.JOptionPane
 
 @Composable
 @Preview
@@ -47,6 +32,7 @@ fun HomeScreen(navController: NavController) {
 @Preview
 @Composable
 fun MainContent(navController: NavController) {
+    Session.initSession()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.DarkGray
@@ -120,12 +106,15 @@ fun CardsRow(navController: NavController) {
 
 fun createNewFile(navController: NavController) {
     navController.navigate("EditorScreen")
+    SessionLogs.log("Navegando para EditorScreen")
 }
 
 fun openFile(navController: NavController) = runBlocking {
+    SessionLogs.log("Abrindo explorador de arquivos.")
     val file = FileKit.pickFile()
     val filePath = file?.path
     if (!filePath.isNullOrEmpty()) {
+        SessionLogs.log("Carregando arquivo ${file.path}")
         if (filePath.toUpperCase().endsWith(".JGOL")) {
             HomeScreenEditScreenSharedData.isFileSelected = true
             HomeScreenEditScreenSharedData.filePath = filePath

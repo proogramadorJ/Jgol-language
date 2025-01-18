@@ -38,6 +38,7 @@ kotlin {
             implementation("org.slf4j:slf4j-api:2.0.0") // API do SLF4J
             implementation("ch.qos.logback:logback-classic:1.4.7") // Implementação do Logback
 
+
         }
     }
 }

@@ -18,10 +18,17 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
             // Retornamos TRUE para indicar que o evento foi tratado
             // Isso impede que o processo seja encerrado
             std::cerr << "Evento de fechamento da console interceptado. A aplicação continuará executando." << std::endl;
+           // FreeConsole();
             return TRUE;
 
         case CTRL_C_EVENT:
+             FreeConsole();
+             return TRUE;
+
         case CTRL_BREAK_EVENT:
+          FreeConsole();
+          return TRUE;
+
         case CTRL_LOGOFF_EVENT:
         case CTRL_SHUTDOWN_EVENT:
             // Para outros eventos, permitimos o comportamento padrão
@@ -38,14 +45,14 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
   std::ofstream arquivo("terminal.dll-output.txt", std::ios::out | std::ios::app);
-/*
+
   if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
           // Falha ao registrar o manipulador
           DWORD error = GetLastError();
           arquivo << "Falha ao registrar o manipulador de eventos da console. Código de erro: " << error << std::endl;
           return;
   }
-*/
+
   if (!FreeConsole()) {
     DWORD error = GetLastError();
     if (error != ERROR_INVALID_HANDLE) { // ERROR_INVALID_HANDLE significa que não havia console para liberar
@@ -61,6 +68,13 @@ Java_com_pedrodev_jgol_terminal_Terminal_init(JNIEnv * env, jobject obj) {
 
   SetConsoleOutputCP(CP_UTF8);
   SetConsoleCP(CP_UTF8);
+if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
+          // Falha ao registrar o manipulador
+          DWORD error = GetLastError();
+          arquivo << "Falha ao registrar o manipulador de eventos da console. Código de erro: " << error << std::endl;
+  }else{
+         arquivo << "Manipulador registrado"<<std::endl;
+  }
 
   HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   if (hOut == INVALID_HANDLE_VALUE) {
