@@ -75,7 +75,6 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
 }
 
 
-
 @Composable
 fun CodeInputEditor(editorViewModel: EditorViewModel) {
 
@@ -183,11 +182,16 @@ fun runCode() {
     println("Running code...")
     val jgolInterpreter = Jgol()
     //TODO durante dev utilizar terminal integrado IDE
- //   openTerminal()
+    val terminalProcess = openTerminal()
     jgolInterpreter.run(EditorViewModel.inMemoryCode)
 
 }
 
-fun openTerminal() {
-Terminal().init()
+fun openTerminal(): Process {
+    val process = ProcessBuilder("cmd").start()
+//    val writer = process.outputStream.bufferedWriter()
+    //   val reader = process.inputStream.bufferedReader()
+    return process
+
+//Terminal().init()
 }
