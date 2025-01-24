@@ -1,6 +1,6 @@
 classe PrimeiraClasse {
     teste(value){
-        escreva("Ola a partir de PrimeiraClasse.teste() "+ value);
+        escreva("Ola a partir da PrimeiraClasse.teste() "+ value);
     }
 }
 

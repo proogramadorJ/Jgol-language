@@ -26,11 +26,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 var navControllerScreeen: NavController? = null
-/*
- TODO bug -> Quando clicar no new file e depois volta para a tela inicial e tenta carregar um arquivo
- TODO não funciona, está carregando o último código.
-*/
-
 
 object EditorViewModel : ViewModel() {
     var inMemoryCode by mutableStateOf(if (HomeScreenEditScreenSharedData.isFileSelected) getCodeFromFile() else DefaultSource.code)
@@ -43,6 +38,10 @@ fun getCodeFromFile(): String {
 @Composable
 fun EditorScreen(navController: NavController) {
     navControllerScreeen = navController
+    EditorViewModel.inMemoryCode = if (HomeScreenEditScreenSharedData.isFileSelected)
+        getCodeFromFile()
+    else
+        DefaultSource.code
     MaterialTheme {
         MainContentEditorScreen(EditorViewModel)
     }
@@ -77,13 +76,10 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
 @Composable
 fun CodeInputEditor(editorViewModel: EditorViewModel) {
 
-    var inMemoryCode by remember { mutableStateOf(editorViewModel.inMemoryCode) }
-
     TextField(
         textStyle = TextStyle(color = Color.White),
-        value = inMemoryCode,
+        value = editorViewModel.inMemoryCode,
         onValueChange = { newCode ->
-            inMemoryCode = newCode
             editorViewModel.inMemoryCode = newCode
         },
         modifier = Modifier.fillMaxSize()
@@ -154,8 +150,8 @@ fun MenuBarCompose() {
 fun back() {
     HomeScreenEditScreenSharedData.isFileSelected = false
     HomeScreenEditScreenSharedData.filePath = null
-
     navControllerScreeen?.popBackStack()
+    SessionLogs.log("Navegando para tela inicial.")
 }
 
 @OptIn(DelicateCoroutinesApi::class)

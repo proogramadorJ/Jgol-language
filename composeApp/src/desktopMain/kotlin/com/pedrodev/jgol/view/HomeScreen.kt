@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.pedrodev.jgol.ide.Session
 import com.pedrodev.jgol.ide.SessionLogs
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import io.github.vinceglb.filekit.core.FileKit
@@ -20,6 +19,7 @@ import jgol.composeapp.generated.resources.new_document
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import java.util.*
 
 @Composable
 @Preview
@@ -114,13 +114,14 @@ fun openFile(navController: NavController) = runBlocking {
     val filePath = file?.path
     if (!filePath.isNullOrEmpty()) {
         SessionLogs.log("Carregando arquivo ${file.path}")
-        if (filePath.toUpperCase().endsWith(".JGOL")) {
+        if (filePath.uppercase(Locale.getDefault()).endsWith(".JGOL")) {
             HomeScreenEditScreenSharedData.isFileSelected = true
             HomeScreenEditScreenSharedData.filePath = filePath
             SessionLogs.log("Navegando Para EditorScreen: Carregando código a partir de arquivo.")
             navController.navigate("EditorScreen")
         } else {
             //TODO notificar como?
+            //TODO extensão do arquivo não é jgol
 
         }
 
