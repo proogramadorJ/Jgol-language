@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.pedrodev.jgol.ide.SessionLogs
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import com.pedrodev.jgol.terminal.Terminal
@@ -180,6 +181,7 @@ fun saveCode() {
 
 fun runCode() {
     println("Running code...")
+    SessionLogs.log("Running code...")
     val jgolInterpreter = Jgol()
     //TODO durante dev utilizar terminal integrado IDE
     val terminalProcess = openTerminal()
