@@ -1,5 +1,7 @@
 package com.pedrodev.jgol.interpreter
 
+import com.pedrodev.jgol.ide.SessionLogs
+
 class Jgol {
 
     companion object {
@@ -60,6 +62,8 @@ class Jgol {
 
     fun finishProgram(startTime: Long) {
         val endTime = System.currentTimeMillis() - startTime
-        println("Execução finalizada em $endTime Milissegundos...")
+        val msgEnd = "Execução finalizada em $endTime Milissegundos..."
+        println(msgEnd)
+        SessionLogs.log(msgEnd)
     }
 }

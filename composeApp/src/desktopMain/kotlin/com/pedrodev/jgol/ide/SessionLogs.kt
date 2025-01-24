@@ -1,6 +1,9 @@
 package com.pedrodev.jgol.ide
 
-import kotlinx.coroutines.*
+import com.pedrodev.jgol.util.DataUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -12,10 +15,9 @@ object SessionLogs {
     private lateinit var file: File
 
     private suspend fun logAsync(text: String) {
-        withContext(Dispatchers.IO) { // Escopo temporário para operações de I/O
+        withContext(Dispatchers.IO) {
             try {
-                file.appendText("$text - ${System.currentTimeMillis()}\n")
-                println("Log salvo: $text")
+                file.appendText("$text - ${DataUtil.getCurrentFormattedTime(null)}\n")
             } catch (error: IOException) {
                 println("Erro ao tentar salvar log da sessão: ${error.message}")
             }
@@ -23,7 +25,7 @@ object SessionLogs {
     }
 
     fun log(text: String) = runBlocking {
-        logAsync(text) // Executa com um escopo temporário no contexto de runBlocking
+        logAsync(text)
     }
 
     fun createLogFile(session: Long) {

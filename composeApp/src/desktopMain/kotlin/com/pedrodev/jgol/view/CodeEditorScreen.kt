@@ -13,7 +13,6 @@ import androidx.navigation.NavController
 import com.pedrodev.jgol.ide.SessionLogs
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
-import com.pedrodev.jgol.terminal.Terminal
 import com.pedrodev.jgol.util.DefaultSource
 import io.github.vinceglb.filekit.core.FileKit
 import jgol.composeapp.generated.resources.Res
@@ -23,7 +22,6 @@ import jgol.composeapp.generated.resources.save
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -167,7 +165,7 @@ fun saveCode() {
             val file = FileKit.saveFile(EditorViewModel.inMemoryCode.toByteArray(), "main", "jgol")
             HomeScreenEditScreenSharedData.filePath = file?.path
             HomeScreenEditScreenSharedData.isFileSelected = true
-            // TODO incluir logs no arquivo da IDE   println("Code saved")
+            SessionLogs.log("Código salvo ${file?.path}")
             // TODO adiconar Alerta de código salvo
         }
     } else {
@@ -175,13 +173,14 @@ fun saveCode() {
             HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) },
             EditorViewModel.inMemoryCode
         )
-        // TODO incluir logs no arquivo da IDE   println("Code saved")
+
+        SessionLogs.log("Código salvo ${HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }}")
+        HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }
     }
 }
 
 fun runCode() {
-    println("Running code...")
-    SessionLogs.log("Running code...")
+    SessionLogs.log("Executando Código...")
     val jgolInterpreter = Jgol()
     //TODO durante dev utilizar terminal integrado IDE
     val terminalProcess = openTerminal()
