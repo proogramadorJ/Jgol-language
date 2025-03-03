@@ -1,13 +1,18 @@
 package com.pedrodev.jgol.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.pedrodev.jgol.ide.SessionLogs
@@ -51,7 +56,7 @@ fun EditorScreen(navController: NavController) {
 fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Blue
+        color = Color.LightGray
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -72,7 +77,7 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
     }
 }
 
-
+/**
 @Composable
 fun CodeInputEditor(editorViewModel: EditorViewModel) {
 
@@ -87,7 +92,47 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
 
 
 }
+**/
+@Composable
+fun CodeInputEditor(editorViewModel: EditorViewModel) {
+    val lineCount = editorViewModel.inMemoryCode.lines().size
 
+    Row(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Coluna para exibir os números das linhas
+        Column(
+            modifier = Modifier
+                .width(40.dp)
+                .fillMaxHeight()
+                .background(Color.LightGray)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.End
+        ) {
+            for (i in 2..lineCount) {
+                Text(
+                    text = (i - 1).toString(),
+                    color = Color.Black,
+                    style = TextStyle(fontSize = 12.sp),
+                    modifier = Modifier.padding(end = 4.dp)
+                )
+            }
+        }
+
+        // Campo de texto para editar o código
+        TextField(
+            textStyle = TextStyle(color = Color.Black),
+            value = editorViewModel.inMemoryCode,
+            onValueChange = { newCode ->
+                editorViewModel.inMemoryCode = newCode
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+        )
+    }
+}
 @Composable
 fun MenuBarCompose() {
     Box {
@@ -178,17 +223,5 @@ fun saveCode() {
 fun runCode() {
     SessionLogs.log("Executando Código...")
     val jgolInterpreter = Jgol()
-    //TODO durante dev utilizar terminal integrado IDE
-    val terminalProcess = openTerminal()
     jgolInterpreter.run(EditorViewModel.inMemoryCode)
-
-}
-
-fun openTerminal(): Process {
-    val process = ProcessBuilder("cmd").start()
-//    val writer = process.outputStream.bufferedWriter()
-    //   val reader = process.inputStream.bufferedReader()
-    return process
-
-//Terminal().init()
 }
