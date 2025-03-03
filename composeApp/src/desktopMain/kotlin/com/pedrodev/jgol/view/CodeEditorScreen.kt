@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -105,24 +106,29 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
             modifier = Modifier
                 .width(40.dp)
                 .fillMaxHeight()
-                .background(Color.LightGray)
-                .padding(4.dp),
+                .background(Color.LightGray),
+               // .padding(4.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.End
         ) {
+            Spacer(modifier = Modifier.size(18.dp))
             for (i in 2..lineCount) {
-                Text(
-                    text = (i - 1).toString(),
-                    color = Color.Black,
-                    style = TextStyle(fontSize = 12.sp),
-                    modifier = Modifier.padding(end = 4.dp)
-                )
+              //  Row {
+                    Text(
+                        text = (i - 1).toString(),
+                        color = Color.Black,
+                        style = TextStyle(fontSize = 12.sp),
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+
+               // }
+
             }
         }
 
         // Campo de texto para editar o código
         TextField(
-            textStyle = TextStyle(color = Color.Black),
+            textStyle = TextStyle(color = Color.Black, fontSize = 12.sp),
             value = editorViewModel.inMemoryCode,
             onValueChange = { newCode ->
                 editorViewModel.inMemoryCode = newCode
