@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -20,6 +19,7 @@ import com.pedrodev.jgol.ide.SessionLogs
 import com.pedrodev.jgol.interpreter.Jgol
 import com.pedrodev.jgol.shared.HomeScreenEditScreenSharedData
 import com.pedrodev.jgol.util.DefaultSource
+import com.pedrodev.jgol.util.NotificationUtil
 import io.github.vinceglb.filekit.core.FileKit
 import jgol.composeapp.generated.resources.Res
 import jgol.composeapp.generated.resources.return_arrow
@@ -28,6 +28,7 @@ import jgol.composeapp.generated.resources.save
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -62,7 +63,6 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Primeira área ocupando 80% do espaço disponível
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,22 +78,6 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
     }
 }
 
-/**
-@Composable
-fun CodeInputEditor(editorViewModel: EditorViewModel) {
-
-    TextField(
-        textStyle = TextStyle(color = Color.White),
-        value = editorViewModel.inMemoryCode,
-        onValueChange = { newCode ->
-            editorViewModel.inMemoryCode = newCode
-        },
-        modifier = Modifier.fillMaxSize()
-    )
-
-
-}
-**/
 @Composable
 fun CodeInputEditor(editorViewModel: EditorViewModel) {
     val lineCount = editorViewModel.inMemoryCode.lines().size
@@ -101,32 +85,26 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Coluna para exibir os números das linhas
         Column(
             modifier = Modifier
                 .width(40.dp)
                 .fillMaxHeight()
                 .background(Color.LightGray),
-               // .padding(4.dp),
+            // .padding(4.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.End
         ) {
             Spacer(modifier = Modifier.size(18.dp))
             for (i in 2..lineCount) {
-              //  Row {
-                    Text(
-                        text = (i - 1).toString(),
-                        color = Color.Black,
-                        style = TextStyle(fontSize = 12.sp),
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
-
-               // }
-
+                Text(
+                    text = (i - 1).toString(),
+                    color = Color.Black,
+                    style = TextStyle(fontSize = 12.sp),
+                    modifier = Modifier.padding(end = 4.dp)
+                )
             }
         }
 
-        // Campo de texto para editar o código
         TextField(
             textStyle = TextStyle(color = Color.Black, fontSize = 12.sp),
             value = editorViewModel.inMemoryCode,
@@ -139,6 +117,7 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
         )
     }
 }
+
 @Composable
 fun MenuBarCompose() {
     Box {
@@ -213,7 +192,7 @@ fun saveCode() {
             HomeScreenEditScreenSharedData.filePath = file?.path
             HomeScreenEditScreenSharedData.isFileSelected = true
             SessionLogs.log("Código salvo ${file?.path}")
-            // TODO adiconar Alerta de código salvo
+
         }
     } else {
         Files.writeString(
@@ -224,7 +203,16 @@ fun saveCode() {
         SessionLogs.log("Código salvo ${HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }}")
         HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }
     }
+    HomeScreenEditScreenSharedData.filePath?.let { File(it).name }?.let {
+        NotificationUtil.showNotification(
+            "Código salvo!",
+            it
+        )
+    }
+
+
 }
+
 
 fun runCode() {
     SessionLogs.log("Executando Código...")
