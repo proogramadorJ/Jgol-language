@@ -47,10 +47,10 @@ object EditorViewModel : ViewModel() {
     var outputLines by mutableStateOf(listOf<String>())
     var waitingForInput by mutableStateOf(false)
     var currentInput by mutableStateOf("")
-    var enterPressed by mutableStateOf(false) // Flag to track when Enter key is pressed
-    var isCodeRunning by mutableStateOf(false) // Flag to track if code is currently running
-    var isTerminalMinimized by mutableStateOf(false) // Flag to track if terminal is minimized
-    var isTerminalVisible by mutableStateOf(false) // Flag to track if terminal should be visible
+    var enterPressed by mutableStateOf(false)
+    var isCodeRunning by mutableStateOf(false)
+    var isTerminalMinimized by mutableStateOf(false)
+    var isTerminalVisible by mutableStateOf(false)
 }
 
 fun getCodeFromFile(): String {
