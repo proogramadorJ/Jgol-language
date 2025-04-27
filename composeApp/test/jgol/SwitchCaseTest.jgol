@@ -1,0 +1,29 @@
+variavel opcao = 2;
+
+escreva "Testando switch-case com opcao = " + opcao;
+
+escolha (opcao) {
+    caso 1:
+        escreva "Opção 1 selecionada";
+    caso 2:
+        escreva "Opção 2 selecionada";
+    caso 3:
+        escreva "Opção 3 selecionada";
+    padrao:
+        escreva "Opção inválida";
+}
+
+variavel fruta = "maçã";
+
+escreva "Testando switch-case com fruta = " + fruta;
+
+escolha (fruta) {
+    caso "banana":
+        escreva "Você escolheu banana";
+    caso "maçã":
+        escreva "Você escolheu maçã";
+    caso "laranja":
+        escreva "Você escolheu laranja";
+    padrao:
+        escreva "Fruta desconhecida";
+}

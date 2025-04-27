@@ -17,6 +17,10 @@ object Keywords {
         "este" to TokenType.THIS,
         "verdadeiro" to TokenType.TRUE,
         "variavel" to TokenType.VAR,
-        "enquanto" to TokenType.WHILE
+        "enquanto" to TokenType.WHILE,
+
+        "escolha" to TokenType.ESCOLHA,
+        "caso" to TokenType.CASO,
+        "padrao" to TokenType.PADRAO
     )
 }

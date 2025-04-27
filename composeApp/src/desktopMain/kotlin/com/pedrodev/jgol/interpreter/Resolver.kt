@@ -91,7 +91,6 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         return null
     }
 
-    // TODO implementar resolver de array
     override fun visitArrayLiteralExpr(expr: Expr.ArrayLiteral): Void? {
         expr.elements.forEach {
             resolve(it)
@@ -239,6 +238,21 @@ class Resolver(private val interpreter: Interpreter) : Expr.Visitor<Void?>, Stmt
         endScope()
         if (stmt.superclass != null) endScope()
         currentClass = enclosingClass
+        return null
+    }
+
+    override fun visitSwitchStmt(stmt: Stmt.Switch): Void? {
+        resolve(stmt.value)
+
+        for ((caseExpr, caseStmt) in stmt.cases) {
+            resolve(caseExpr)
+            resolve(caseStmt)
+        }
+
+        if (stmt.defaultCase != null) {
+            resolve(stmt.defaultCase)
+        }
+
         return null
     }
 

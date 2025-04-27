@@ -160,8 +160,10 @@ class Parser(private val tokens: List<Token>) {
             } else if (match(TokenType.LEFT_BRACKET)) {
                 val index = expression()
                 consume(TokenType.RIGHT_BRACKET, "Esperado ']' após o índice.")
-                //TODO somente para passar no primeiro teste, depois obter a localização real do token
-                expr = Expr.ArrayAccess(Token(TokenType.LEFT_BRACKET, "[", null, 0),expr, index)
+
+                // TODO obter a localização real do token
+                expr = Expr.ArrayAccess(Token(TokenType.LEFT_BRACKET, "[", null, 0), expr, index)
+
             } else if (match(TokenType.DOT)) {
                 val name = consume(TokenType.IDENTIFIER, "Esperado nome da propriedade após '.'.")
                 expr = Expr.Get(expr, name)
@@ -340,9 +342,63 @@ class Parser(private val tokens: List<Token>) {
             match(TokenType.PRINT) -> printStatement()
             match(TokenType.RETURN) -> returnStatement()
             match(TokenType.WHILE) -> whileStatement()
+            match(TokenType.ESCOLHA) -> switchStatement()
             match(TokenType.LEFT_BRACE) -> Stmt.Block(block())
             else -> expressionStatement()
         }
+    }
+
+    private fun switchStatement(): Stmt {
+        consume(TokenType.LEFT_PAREN, "Esperado '(' depois de 'escolha'.")
+        val value = expression()
+        consume(TokenType.RIGHT_PAREN, "Esperado ')' depois da expressão.")
+        consume(TokenType.LEFT_BRACE, "Esperado '{' depois da condição 'escolha'.")
+
+        val cases = mutableListOf<Pair<Expr, Stmt>>()
+        var defaultCase: Stmt? = null
+
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            if (match(TokenType.CASO)) {
+                val caseValue = expression()
+                consume(TokenType.COLON, "Esperado ':' depois do valor do caso.")
+
+                val statements = mutableListOf<Stmt>()
+                while (!check(TokenType.CASO) && !check(TokenType.PADRAO) && !check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+                    statements.add(declaration() ?: break)
+                }
+
+                val caseBody = if (statements.size == 1) {
+                    statements[0]
+                } else {
+                    Stmt.Block(statements)
+                }
+
+                cases.add(Pair(caseValue, caseBody))
+            } else if (match(TokenType.PADRAO)) {
+                if (defaultCase != null) {
+                    error(previous(), "Não pode ter mais de um caso padrão.")
+                }
+
+                consume(TokenType.COLON, "Esperado ':' depois de 'padrao'.")
+
+                val statements = mutableListOf<Stmt>()
+                while (!check(TokenType.CASO) && !check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+                    statements.add(declaration() ?: break)
+                }
+
+                defaultCase = if (statements.size == 1) {
+                    statements[0]
+                } else {
+                    Stmt.Block(statements)
+                }
+            } else {
+                throw error(peek(), "Esperado 'caso' ou 'padrao'.")
+            }
+        }
+
+        consume(TokenType.RIGHT_BRACE, "Esperado '}' depois dos casos.")
+
+        return Stmt.Switch(value, cases, defaultCase)
     }
 
     private fun returnStatement(): Stmt.Return {

@@ -1,16 +1,22 @@
 package com.pedrodev.jgol.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -36,6 +42,15 @@ var navControllerScreeen: NavController? = null
 
 object EditorViewModel : ViewModel() {
     var inMemoryCode by mutableStateOf(if (HomeScreenEditScreenSharedData.isFileSelected) getCodeFromFile() else DefaultSource.code)
+
+    // Terminal
+    var outputLines by mutableStateOf(listOf<String>())
+    var waitingForInput by mutableStateOf(false)
+    var currentInput by mutableStateOf("")
+    var enterPressed by mutableStateOf(false) // Flag to track when Enter key is pressed
+    var isCodeRunning by mutableStateOf(false) // Flag to track if code is currently running
+    var isTerminalMinimized by mutableStateOf(false) // Flag to track if terminal is minimized
+    var isTerminalVisible by mutableStateOf(false) // Flag to track if terminal should be visible
 }
 
 fun getCodeFromFile(): String {
@@ -63,17 +78,16 @@ fun MainContentEditorScreen(editorViewModel: EditorViewModel) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Box(
+            MenuBarCompose()
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
+                    .weight(1f)
             ) {
-                Column {
-                    MenuBarCompose()
-                    CodeInputEditor(editorViewModel)
-                }
+                CodeInputEditor(editorViewModel)
             }
 
+            TerminalView(editorViewModel)
         }
     }
 }
@@ -90,7 +104,6 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
                 .width(40.dp)
                 .fillMaxHeight()
                 .background(Color.LightGray),
-            // .padding(4.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.End
         ) {
@@ -119,6 +132,112 @@ fun CodeInputEditor(editorViewModel: EditorViewModel) {
 }
 
 @Composable
+fun TerminalView(editorViewModel: EditorViewModel) {
+    if (editorViewModel.isTerminalVisible) {
+        val scrollState = rememberLazyListState()
+
+        var terminalHeight by remember { mutableStateOf(200f) }
+
+        LaunchedEffect(editorViewModel.outputLines.size) {
+            if (editorViewModel.outputLines.isNotEmpty()) {
+                scrollState.animateScrollToItem(editorViewModel.outputLines.size - 1)
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (editorViewModel.isTerminalMinimized) 40.dp else terminalHeight.dp) // Minimize if needed
+                .background(Color.Black)
+                .padding(8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(8.dp)
+                        .background(Color.DarkGray)
+                        .pointerInput(Unit) {
+                            detectDragGestures { _, dragAmount ->
+                                if (!editorViewModel.isTerminalMinimized) {
+                                    terminalHeight = (terminalHeight - dragAmount.y).coerceIn(100f, 500f)
+                                }
+                            }
+                        }
+                )
+
+                IconButton(
+                    onClick = { 
+                        editorViewModel.isTerminalMinimized = !editorViewModel.isTerminalMinimized 
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Text(
+                        text = if (editorViewModel.isTerminalMinimized) "+" else "-",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+
+            if (!editorViewModel.isTerminalMinimized) {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(editorViewModel.outputLines) { line ->
+                        val isError = line.contains("Erro") || line.contains("[Linha") || line.contains("linha")
+                        Text(
+                            text = line,
+                            color = if (isError) Color.Red else Color.Green,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                if (editorViewModel.waitingForInput) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = ">",
+                            color = Color.Green,
+                            fontSize = 14.sp
+                        )
+                        TextField(
+                            value = editorViewModel.currentInput,
+                            onValueChange = { editorViewModel.currentInput = it },
+                            textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 4.dp),
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = Color.Black,
+                                focusedIndicatorColor = Color.Green,
+                                unfocusedIndicatorColor = Color.Green
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    editorViewModel.enterPressed = true
+                                }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun MenuBarCompose() {
     Box {
         Surface(
@@ -131,7 +250,6 @@ fun MenuBarCompose() {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
-
             ) {
                 IconButton(
                     onClick = { back() },
@@ -171,8 +289,6 @@ fun MenuBarCompose() {
                     )
                 }
             }
-
-
         }
     }
 }
@@ -201,7 +317,6 @@ fun saveCode() {
         )
 
         SessionLogs.log("Código salvo ${HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }}")
-        HomeScreenEditScreenSharedData.filePath?.let { Path.of(it) }
     }
     HomeScreenEditScreenSharedData.filePath?.let { File(it).name }?.let {
         NotificationUtil.showNotification(
@@ -209,13 +324,41 @@ fun saveCode() {
             it
         )
     }
-
-
 }
 
-
+@OptIn(DelicateCoroutinesApi::class)
 fun runCode() {
     SessionLogs.log("Executando Código...")
     val jgolInterpreter = Jgol()
-    jgolInterpreter.run(EditorViewModel.inMemoryCode)
+
+    EditorViewModel.isCodeRunning = true
+    EditorViewModel.isTerminalVisible = true
+    EditorViewModel.isTerminalMinimized = false
+
+    jgolInterpreter.setOutputHandler { message ->
+        EditorViewModel.outputLines = EditorViewModel.outputLines + message
+    }
+
+    jgolInterpreter.setInputHandler {
+        EditorViewModel.waitingForInput = true
+        EditorViewModel.enterPressed = false
+
+        while (!EditorViewModel.enterPressed) {
+            Thread.sleep(100)
+        }
+
+        val input = EditorViewModel.currentInput
+        EditorViewModel.waitingForInput = false
+        EditorViewModel.currentInput = ""
+        EditorViewModel.enterPressed = false
+        input
+    }
+
+    EditorViewModel.outputLines = listOf()
+
+    GlobalScope.launch {
+        jgolInterpreter.run(EditorViewModel.inMemoryCode) {
+            EditorViewModel.isCodeRunning = false
+        }
+    }
 }

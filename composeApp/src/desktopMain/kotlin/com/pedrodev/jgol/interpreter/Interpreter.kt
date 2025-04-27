@@ -1,13 +1,44 @@
 package com.pedrodev.jgol.interpreter
 
-import org.jetbrains.skia.TextBlob
-import kotlin.math.exp
-
 class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     val globals = Environment()
     private var environment = globals
     private val locals: MutableMap<Expr, Int> = mutableMapOf()
+
+    private var outputHandler: ((String) -> Unit)? = null
+    private var inputHandler: (() -> String)? = null
+    private var inputCallback: ((String) -> Unit)? = null
+    private var waitingForInput = false
+
+    private var jgolInstance: Jgol? = null
+
+    fun setJgolInstance(jgol: Jgol) {
+        jgolInstance = jgol
+    }
+
+    fun setOutputHandler(handler: (String) -> Unit) {
+        outputHandler = handler
+    }
+
+    fun setInputHandler(handler: () -> String) {
+        inputHandler = handler
+    }
+
+    fun setInputCallback(callback: (String) -> Unit) {
+        inputCallback = callback
+    }
+
+    fun isWaitingForInput(): Boolean {
+        return waitingForInput
+    }
+
+    fun provideInput(input: String) {
+        if (waitingForInput && inputCallback != null) {
+            waitingForInput = false
+            inputCallback?.invoke(input)
+        }
+    }
 
     override fun visitAssignExpr(expr: Expr.Assign): Any? {
         val value = evaluate(expr.value)
@@ -49,7 +80,6 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
                 checkNumberOperands(expr.operator, left, right)
                 (left as Double) - (right as Double)
             }
-            // TODO to implement retorno de Long e Int, vide clock native funciton
             TokenType.PLUS -> {
                 when {
                     left is Double && right is Double -> left + right
@@ -192,7 +222,6 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         val array = evaluate(expr.array)
         val index = evaluate(expr.index)
 
-
         if (array !is List<*>) {
             throw RuntimeError(expr.token, "Só é possível indexar arrays.")
         }
@@ -209,7 +238,6 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         }
 
         return list[idx]
-
     }
 
     override fun vistiArraySetExpr(expr: Expr.ArraySet): Any? {
@@ -262,9 +290,24 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     fun interpret(statements: List<Stmt>) {
         try {
-            statements.forEach { execute(it) }
+            for (statement in statements) {
+                try {
+                    execute(statement)
+                } catch (error: RuntimeError) {
+                    if (jgolInstance != null) {
+                        jgolInstance?.reportRuntimeError(error)
+                    } else {
+                        Jgol.runtimeError(error)
+                    }
+                    break
+                }
+            }
         } catch (error: RuntimeError) {
-            Jgol.runtimeError(error)
+            if (jgolInstance != null) {
+                jgolInstance?.reportRuntimeError(error)
+            } else {
+                Jgol.runtimeError(error)
+            }
         }
     }
 
@@ -325,7 +368,12 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     override fun visitPrintStmt(stmt: Stmt.Print): Void? {
         val value = evaluate(stmt.expression)
-        println(stringify(value))
+        val output = stringify(value)
+        if (outputHandler != null) {
+            outputHandler?.invoke(output)
+        } else {
+            println(output)
+        }
         return null
     }
 
@@ -378,9 +426,28 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
         return null
     }
 
+    override fun visitSwitchStmt(stmt: Stmt.Switch): Void? {
+        val switchValue = evaluate(stmt.value)
+
+        for ((caseExpr, caseStmt) in stmt.cases) {
+            val caseValue = evaluate(caseExpr)
+
+            if (isEqual(switchValue, caseValue)) {
+                execute(caseStmt)
+                return null
+            }
+        }
+
+        if (stmt.defaultCase != null) {
+            execute(stmt.defaultCase)
+        }
+
+        return null
+    }
+
     private val clockFunctionDefiniton = object : JgolCallable {
         override fun call(interpreter: Interpreter, arguments: List<Any?>): Any {
-            return System.currentTimeMillis().toDouble() / 1000.0 // TODO tá certo isso?
+            return System.currentTimeMillis().toDouble() / 1000.0
         }
 
         override fun arity(): Int {
@@ -391,14 +458,17 @@ class Interpreter : Expr.Visitor<Any?>, Stmt.Visitor<Void?> {
 
     private val stdInDefinition = object : JgolCallable {
         override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
-            val input = java.util.Scanner(System.`in`)
-            val rawValue = input.nextLine()
+            val rawValue = if (inputHandler != null) {
+                inputHandler?.invoke() ?: ""
+            } else {
+                val input = java.util.Scanner(System.`in`)
+                input.nextLine()
+            }
+
             return try {
                 rawValue.trim().toDouble()
             } catch (e: Exception) {
                 try {
-                    //TODO isso nunca retorna boolean
-                    //TODO verificar se existe nextBolean em Java/Koltin
                     rawValue.toBoolean()
                 } catch (e: Exception) {
                     rawValue

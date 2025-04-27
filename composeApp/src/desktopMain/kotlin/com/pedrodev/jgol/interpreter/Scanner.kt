@@ -17,7 +17,6 @@ class Scanner(var source: String) {
         return tokens
     }
 
-    // TODO adicionar suporte a comentario de multiplas linhas /* ... */
     private fun scanToken() {
         val c: Char = advance()
 
@@ -34,6 +33,7 @@ class Scanner(var source: String) {
             '+' -> addToken(TokenType.PLUS)
             ';' -> addToken(TokenType.SEMICOLON)
             '*' -> addToken(TokenType.STAR)
+            ':' -> addToken(TokenType.COLON)
             '!' -> addToken(if (match('=')) TokenType.BANG_EQUAL else TokenType.BANG)
             '=' -> addToken(if (match('=')) TokenType.EQUAL_EQUAL else TokenType.EQUAL)
             '<' -> addToken(if (match('=')) TokenType.LESS_EQUAL else TokenType.LESS)
@@ -97,7 +97,7 @@ class Scanner(var source: String) {
     }
 
     private fun peekNext(): Char {
-        if (current + 1 >= source.length) return '\b' // TODO replace this character
+        if (current + 1 >= source.length) return '\b'
         return source[current + 1]
     }
 
@@ -118,7 +118,7 @@ class Scanner(var source: String) {
 
     private fun peek(): Char {
         if (isAtEnd()) {
-            return '\b' // TODO replace this character
+            return '\b' // TODO mudar esse caracter
         }
         return source[current]
     }
@@ -148,17 +148,3 @@ class Scanner(var source: String) {
         return current >= source.length
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

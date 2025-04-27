@@ -11,6 +11,7 @@ abstract class Stmt {
         fun visitWhileStmt(stmt: While): R
         fun visitVarStmt(stmt: Var): R
         fun visitClassStmt(stmt: Class): R
+        fun visitSwitchStmt(stmt: Switch): R
     }
 
 
@@ -66,9 +67,17 @@ abstract class Stmt {
         override fun <R> accept(visitor: Visitor<R>): R {
             return visitor.visitClassStmt(this)
         }
-
     }
 
+    class Switch(
+        val value: Expr,
+        val cases: List<Pair<Expr, Stmt>>,
+        val defaultCase: Stmt?
+    ) : Stmt() {
+        override fun <R> accept(visitor: Visitor<R>): R {
+            return visitor.visitSwitchStmt(this)
+        }
+    }
 
     abstract fun <R> accept(visitor: Visitor<R>): R
 }
